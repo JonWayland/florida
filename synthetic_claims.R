@@ -4,13 +4,13 @@
 # PACKAGES ────────────────────────────────────────────────────────────────────
 if (!requireNamespace("pacman", quietly = TRUE)) install.packages("pacman")
 pacman::p_load(
-  dplyr, tidyr, stringi, lubridate, charlatan, randomNames, faker, tibble
+  dplyr, tidyr, stringi, lubridate, charlatan, randomNames, tibble
 )
 
 # PARAMETERS ──────────────────────────────────────────────────────────────────
 set.seed(813)        # reproducibility
-n_subs    <- 2_000   # unique subscribers
-n_claims  <- 10_000  # claim *lines* (can exceed n_subs)
+n_subs    <- 2000   # unique subscribers
+n_claims  <- 10000  # claim *lines* (can exceed n_subs)
 
 # helper: Florida ZIPs (first three digits 320–349)
 fl_zip_pool <- sprintf("%05d", as.integer(
@@ -67,7 +67,7 @@ claims_df <- tibble(
   person_id       = NA_character_,   # will join later
   provider_npi    = sprintf("%010d", sample(1e9:2e9, n_claims, TRUE)),
   place_of_service= sample(names(pos_pool), n_claims, TRUE),
-  facility_name   = faker::CompanyProvider$new()$company(n_claims),
+  facility_name   = charlatan::ch_company(n_claims),
   claim_type      = sample(claim_type_pool, n_claims, TRUE, c(.6,.2,.2)),
   cpt_code        = sample(cpt_pool, n_claims, TRUE),
   diagnosis1      = sample(icd10_pool, n_claims, TRUE),
