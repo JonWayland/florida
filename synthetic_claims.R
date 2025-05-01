@@ -61,6 +61,17 @@ subs_tbl <- tibble(
 # ──────────────────────────────────────────────────────────────────────────────
 # 2. GENERATE CLAIM LINES
 # ──────────────────────────────────────────────────────────────────────────────
+
+street_us <- function(n = 1) {
+  prov <- charlatan::AddressProvider_en_US$new()
+  vapply(seq_len(n), function(i) prov$street_address(), character(1))
+}
+
+city_us <- function(n = 1) {
+  prov <- charlatan::AddressProvider_en_US$new()
+  vapply(seq_len(n), function(i) prov$city(), character(1))
+}
+
 claims_df <- tibble(
   claim_line_id   = sprintf("CL%07d", 1:n_claims),
   subscriber_id   = sample(subs_tbl$subscriber_id, n_claims, TRUE),
@@ -90,8 +101,8 @@ claims_df <- tibble(
   # addresses / ZIPs
   mutate(
     zip            = sample(fl_zip_pool, n_claims, TRUE),
-    address_line1  = charlatan::ch_street_address(n_claims),
-    city           = charlatan::ch_city(n_claims),
+    address_line1 = street_us(n_claims),
+    city           = city_us(n_claims),
     state          = "FL"
   )
 
