@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commercial Analytics Demos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: white;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Animated background particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #00d4ff;
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) translateX(0px); opacity: 0.3; }
+            50% { transform: translateY(-20px) translateX(10px); opacity: 1; }
+        }
+
+        /* Header */
+        .header {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 4rem 2rem 2rem;
+            background: linear-gradient(45deg, rgba(0, 212, 255, 0.1), rgba(255, 0, 150, 0.1));
+        }
+
+        .title {
+            font-size: 4rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #00d4ff, #ff0096, #00ff88);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease-in-out infinite;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .subtitle {
+            font-size: 1.8rem;
+            margin-bottom: 3rem;
+            color: #00d4ff;
+            font-weight: 300;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.02); }
+        }
+
+        /* Main content */
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .demo-card {
+            position: relative;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 20px;
+            padding: 2.5rem;
+            text-decoration: none;
+            color: white;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .demo-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .demo-card:hover::before {
+            left: 100%;
+        }
+
+        .demo-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: #00d4ff;
+            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.3),
+                        0 0 0 1px rgba(0, 212, 255, 0.5);
+        }
+
+        .demo-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            display: block;
+            text-align: center;
+        }
+
+        .demo-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-align: center;
+            color: #00d4ff;
+        }
+
+        .demo-description {
+            font-size: 1rem;
+            line-height: 1.6;
+            opacity: 0.9;
+            text-align: center;
+        }
+
+        /* Specific card colors */
+        .deep-learning {
+            border-color: rgba(255, 0, 150, 0.5);
+        }
+
+        .deep-learning:hover {
+            border-color: #ff0096;
+            box-shadow: 0 20px 40px rgba(255, 0, 150, 0.3),
+                        0 0 0 1px rgba(255, 0, 150, 0.5);
+        }
+
+        .deep-learning .demo-title {
+            color: #ff0096;
+        }
+
+        .wiseways {
+            border-color: rgba(0, 255, 136, 0.5);
+        }
+
+        .wiseways:hover {
+            border-color: #00ff88;
+            box-shadow: 0 20px 40px rgba(0, 255, 136, 0.3),
+                        0 0 0 1px rgba(0, 255, 136, 0.5);
+        }
+
+        .wiseways .demo-title {
+            color: #00ff88;
+        }
+
+        .generative-ai {
+            border-color: rgba(255, 215, 0, 0.5);
+        }
+
+        .generative-ai:hover {
+            border-color: #ffd700;
+            box-shadow: 0 20px 40px rgba(255, 215, 0, 0.3),
+                        0 0 0 1px rgba(255, 215, 0, 0.5);
+        }
+
+        .generative-ai .demo-title {
+            color: #ffd700;
+        }
+
+        /* Footer tagline */
+        .footer-tagline {
+            text-align: center;
+            margin-top: 4rem;
+            padding: 2rem;
+            font-size: 2rem;
+            font-weight: 300;
+            background: linear-gradient(45deg, #00d4ff, #ff0096);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .demo-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-tagline {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Loading animation */
+        .loading-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, #00d4ff, #ff0096, #00ff88, #ffd700);
+            background-size: 200% 100%;
+            animation: loadingShimmer 2s linear infinite;
+            z-index: 1000;
+        }
+
+        @keyframes loadingShimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* Glow effects */
+        .glow-effect {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: rotate 20s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes rotate {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-bar"></div>
+    
+    <!-- Animated background particles -->
+    <div class="particles" id="particles"></div>
+    
+    <!-- Header -->
+    <header class="header">
+        <div class="glow-effect"></div>
+        <h1 class="title">Commercial Analytics Demos</h1>
+        <p class="subtitle">Pioneering the Future of Healthcare Technology</p>
+    </header>
+
+    <!-- Main content -->
+    <div class="container">
+        <div class="demo-grid">
+            <a href="deep-learning.html" class="demo-card deep-learning">
+                <span class="demo-icon">🧠</span>
+                <h2 class="demo-title">Deep Learning using GPUs</h2>
+                <p class="demo-description">Harness the power of advanced neural networks with cutting-edge GPU acceleration for breakthrough healthcare insights and predictive modeling.</p>
+            </a>
+
+            <a href="wiseways.html" class="demo-card wiseways">
+                <span class="demo-icon">🔬</span>
+                <h2 class="demo-title">WiseWays</h2>
+                <p class="demo-description">Intelligent pathways to clinical excellence through sophisticated analytics and evidence-based decision support systems.</p>
+            </a>
+
+            <a href="machine-learning.html" class="demo-card">
+                <span class="demo-icon">⚡</span>
+                <h2 class="demo-title">Machine Learning</h2>
+                <p class="demo-description">Transform healthcare delivery with adaptive algorithms that learn, evolve, and optimize patient outcomes in real-time.</p>
+            </a>
+
+            <a href="generative-ai.html" class="demo-card generative-ai">
+                <span class="demo-icon">✨</span>
+                <h2 class="demo-title">Generative AI</h2>
+                <p class="demo-description">Revolutionary AI that creates, innovates, and generates novel solutions for complex healthcare challenges and research breakthroughs.</p>
+            </a>
+        </div>
+
+        <div class="footer-tagline">
+            The Future of Health is Fueled with Data
+        </div>
+    </div>
+
+    <script>
+        // Create animated particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Remove loading bar after page loads
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                const loadingBar = document.querySelector('.loading-bar');
+                if (loadingBar) {
+                    loadingBar.style.opacity = '0';
+                    setTimeout(() => loadingBar.remove(), 500);
+                }
+            }, 2000);
+        });
+
+        // Initialize particles
+        createParticles();
+
+        // Add click sound effect and enhanced interaction
+        document.querySelectorAll('.demo-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-10px) scale(1.02) rotateX(5deg)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1) rotateX(0deg)';
+            });
+            
+            card.addEventListener('click', function(e) {
+                // Create ripple effect
+                const ripple = document.createElement('div');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.cssText = `
+                    position: absolute;
+                    width: ${size}px;
+                    height: ${size}px;
+                    left: ${x}px;
+                    top: ${y}px;
+                    background: radial-gradient(circle, rgba(0, 212, 255, 0.3) 0%, transparent 70%);
+                    border-radius: 50%;
+                    transform: scale(0);
+                    animation: ripple 0.6s ease-out;
+                    pointer-events: none;
+                    z-index: 1;
+                `;
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+        // Add ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(2);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Parallax effect for background elements
+        window.addEventListener('mousemove', function(e) {
+            const mouseX = e.clientX / window.innerWidth;
+            const mouseY = e.clientY / window.innerHeight;
+            
+            document.querySelector('.glow-effect').style.transform = 
+                `translate(${-50 + (mouseX - 0.5) * 20}%, ${-50 + (mouseY - 0.5) * 20}%) rotate(${mouseX * 360}deg)`;
+        });
+    </script>
+</body>
+</html>
