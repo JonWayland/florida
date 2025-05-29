@@ -95,11 +95,29 @@
             padding: 2rem;
         }
 
+        .category-section {
+            margin-bottom: 4rem;
+        }
+
+        .category-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 2rem;
+            background: linear-gradient(45deg, #00d4ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
         .demo-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 2rem;
-            margin-top: 3rem;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         .demo-card {
@@ -161,20 +179,6 @@
         }
 
         /* Specific card colors */
-        .deep-learning {
-            border-color: rgba(255, 0, 150, 0.5);
-        }
-
-        .deep-learning:hover {
-            border-color: #ff0096;
-            box-shadow: 0 20px 40px rgba(255, 0, 150, 0.3),
-                        0 0 0 1px rgba(255, 0, 150, 0.5);
-        }
-
-        .deep-learning .demo-title {
-            color: #ff0096;
-        }
-
         .wiseways {
             border-color: rgba(0, 255, 136, 0.5);
         }
@@ -187,6 +191,62 @@
 
         .wiseways .demo-title {
             color: #00ff88;
+        }
+
+        .conditions-dashboard {
+            border-color: rgba(138, 43, 226, 0.5);
+        }
+
+        .conditions-dashboard:hover {
+            border-color: #8a2be2;
+            box-shadow: 0 20px 40px rgba(138, 43, 226, 0.3),
+                        0 0 0 1px rgba(138, 43, 226, 0.5);
+        }
+
+        .conditions-dashboard .demo-title {
+            color: #8a2be2;
+        }
+
+        .provider-designation {
+            border-color: rgba(255, 69, 0, 0.5);
+        }
+
+        .provider-designation:hover {
+            border-color: #ff4500;
+            box-shadow: 0 20px 40px rgba(255, 69, 0, 0.3),
+                        0 0 0 1px rgba(255, 69, 0, 0.5);
+        }
+
+        .provider-designation .demo-title {
+            color: #ff4500;
+        }
+
+        .machine-learning {
+            border-color: rgba(0, 212, 255, 0.5);
+        }
+
+        .machine-learning:hover {
+            border-color: #00d4ff;
+            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.3),
+                        0 0 0 1px rgba(0, 212, 255, 0.5);
+        }
+
+        .machine-learning .demo-title {
+            color: #00d4ff;
+        }
+
+        .deep-learning {
+            border-color: rgba(255, 0, 150, 0.5);
+        }
+
+        .deep-learning:hover {
+            border-color: #ff0096;
+            box-shadow: 0 20px 40px rgba(255, 0, 150, 0.3),
+                        0 0 0 1px rgba(255, 0, 150, 0.5);
+        }
+
+        .deep-learning .demo-title {
+            color: #ff0096;
         }
 
         .generative-ai {
@@ -300,30 +360,52 @@
 
     <!-- Main content -->
     <div class="container">
-        <div class="demo-grid">
-            <a href="deep-learning.html" class="demo-card deep-learning">
-                <span class="demo-icon">🧠</span>
-                <h2 class="demo-title">Deep Learning using GPUs</h2>
-                <p class="demo-description">Harness the power of advanced neural networks with cutting-edge GPU acceleration for breakthrough healthcare insights and predictive modeling.</p>
-            </a>
+        <!-- Analytics Data Products Section -->
+        <div class="category-section">
+            <h2 class="category-title">Analytics Data Products</h2>
+            <div class="demo-grid">
+                <a href="wiseways.html" class="demo-card wiseways">
+                    <span class="demo-icon">🔬</span>
+                    <h3 class="demo-title">WiseWays</h3>
+                    <p class="demo-description">Intelligent pathways to clinical excellence through sophisticated analytics and evidence-based decision support systems.</p>
+                </a>
 
-            <a href="wiseways.html" class="demo-card wiseways">
-                <span class="demo-icon">🔬</span>
-                <h2 class="demo-title">WiseWays</h2>
-                <p class="demo-description">Intelligent pathways to clinical excellence through sophisticated analytics and evidence-based decision support systems.</p>
-            </a>
+                <a href="conditions-dashboard.html" class="demo-card conditions-dashboard">
+                    <span class="demo-icon">📊</span>
+                    <h3 class="demo-title">Conditions Dashboard</h3>
+                    <p class="demo-description">Comprehensive visualization platform for real-time monitoring and analysis of patient conditions and clinical outcomes.</p>
+                </a>
 
-            <a href="machine-learning.html" class="demo-card">
-                <span class="demo-icon">⚡</span>
-                <h2 class="demo-title">Machine Learning</h2>
-                <p class="demo-description">Transform healthcare delivery with adaptive algorithms that learn, evolve, and optimize patient outcomes in real-time.</p>
-            </a>
+                <a href="provider-designation.html" class="demo-card provider-designation">
+                    <span class="demo-icon">🏥</span>
+                    <h3 class="demo-title">Provider Designation</h3>
+                    <p class="demo-description">Advanced classification and performance analytics for healthcare providers, optimizing network efficiency and quality metrics.</p>
+                </a>
+            </div>
+        </div>
 
-            <a href="generative-ai.html" class="demo-card generative-ai">
-                <span class="demo-icon">✨</span>
-                <h2 class="demo-title">Generative AI</h2>
-                <p class="demo-description">Revolutionary AI that creates, innovates, and generates novel solutions for complex healthcare challenges and research breakthroughs.</p>
-            </a>
+        <!-- Predictive Techniques Section -->
+        <div class="category-section">
+            <h2 class="category-title">Predictive Techniques</h2>
+            <div class="demo-grid">
+                <a href="machine-learning.html" class="demo-card machine-learning">
+                    <span class="demo-icon">⚡</span>
+                    <h3 class="demo-title">Machine Learning</h3>
+                    <p class="demo-description">Transform healthcare delivery with adaptive algorithms that learn, evolve, and optimize patient outcomes in real-time.</p>
+                </a>
+
+                <a href="deep-learning.html" class="demo-card deep-learning">
+                    <span class="demo-icon">🧠</span>
+                    <h3 class="demo-title">Deep Learning</h3>
+                    <p class="demo-description">Harness the power of advanced neural networks with cutting-edge GPU acceleration for breakthrough healthcare insights.</p>
+                </a>
+
+                <a href="generative-ai.html" class="demo-card generative-ai">
+                    <span class="demo-icon">✨</span>
+                    <h3 class="demo-title">Generative AI</h3>
+                    <p class="demo-description">Revolutionary AI that creates, innovates, and generates novel solutions for complex healthcare challenges and research breakthroughs.</p>
+                </a>
+            </div>
         </div>
 
         <div class="footer-tagline">
