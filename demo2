@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICD10 3D Embeddings Viewer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .graph-container {
+            flex: 2;
+            position: relative;
+            background: rgba(15, 15, 35, 0.8);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .controls-container {
+            flex: 1;
+            padding: 2rem;
+            background: rgba(26, 26, 46, 0.9);
+            backdrop-filter: blur(20px);
+            overflow-y: auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 300;
+            background: linear-gradient(45deg, #64b5f6, #81c784);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .search-section {
+            margin-bottom: 2rem;
+        }
+
+        .search-section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: #64b5f6;
+            font-weight: 400;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #64b5f6;
+            box-shadow: 0 0 20px rgba(100, 181, 246, 0.3);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(26, 26, 46, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            backdrop-filter: blur(20px);
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .dropdown-item:hover {
+            background: rgba(100, 181, 246, 0.2);
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .closest-section {
+            margin-top: 2rem;
+        }
+
+        .closest-section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: #81c784;
+            font-weight: 400;
+        }
+
+        .closest-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border-left: 3px solid #81c784;
+            transition: all 0.3s ease;
+        }
+
+        .closest-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(5px);
+        }
+
+        .closest-code {
+            font-weight: 600;
+            color: #81c784;
+            font-size: 0.9rem;
+        }
+
+        .closest-description {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin: 0.5rem 0;
+            line-height: 1.4;
+        }
+
+        .closest-category {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-style: italic;
+        }
+
+        .closest-distance {
+            font-size: 0.75rem;
+            color: #64b5f6;
+            float: right;
+            margin-top: -1.5rem;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(26, 26, 46, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 1rem;
+            pointer-events: none;
+            z-index: 1000;
+            backdrop-filter: blur(20px);
+            min-width: 250px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .tooltip-code {
+            font-weight: 600;
+            color: #64b5f6;
+            margin-bottom: 0.5rem;
+        }
+
+        .tooltip-description {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .tooltip-category {
+            color: #81c784;
+            font-size: 0.9rem;
+        }
+
+        .legend {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(26, 26, 46, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 1rem;
+            backdrop-filter: blur(20px);
+        }
+
+        .legend h4 {
+            color: #64b5f6;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.25rem;
+            font-size: 0.8rem;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .spinner {
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-left: 2px solid #64b5f6;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="graph-container" id="graph-container">
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <div>Loading embeddings data...</div>
+            </div>
+            <div class="legend" id="legend" style="display: none;">
+                <h4>Categories</h4>
+                <div id="legend-items"></div>
+            </div>
+        </div>
+        
+        <div class="controls-container">
+            <div class="header">
+                <h1>ICD10 Explorer</h1>
+                <p>Interactive 3D visualization of medical code embeddings</p>
+            </div>
+            
+            <div class="search-section">
+                <h3>Search ICD10 Code</h3>
+                <div class="search-box">
+                    <input type="text" class="search-input" id="search-input" placeholder="Type ICD10 code (e.g., A00.0)">
+                    <div class="dropdown" id="dropdown" style="display: none;"></div>
+                </div>
+            </div>
+            
+            <div class="closest-section" id="closest-section" style="display: none;">
+                <h3>Nearest Neighbors</h3>
+                <div id="closest-items"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tooltip" id="tooltip" style="display: none;"></div>
+
+    <script>
+        class ICD10Visualizer {
+            constructor() {
+                this.scene = null;
+                this.camera = null;
+                this.renderer = null;
+                this.data = [];
+                this.points = [];
+                this.raycaster = new THREE.Raycaster();
+                this.mouse = new THREE.Vector2();
+                this.tooltip = document.getElementById('tooltip');
+                this.selectedPoint = null;
+                this.colors = {};
+                this.colorPalette = [
+                    '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
+                    '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9',
+                    '#F8C471', '#82E0AA', '#F1948A', '#85C1E9', '#D5A6BD'
+                ];
+                this.init();
+            }
+
+            async init() {
+                try {
+                    await this.loadData();
+                    this.setupScene();
+                    this.createPoints();
+                    this.setupControls();
+                    this.setupEventListeners();
+                    this.animate();
+                    this.hideLoading();
+                } catch (error) {
+                    console.error('Failed to initialize:', error);
+                    this.showError('Failed to load data. Please ensure embeddings.json is available.');
+                }
+            }
+
+            async loadData() {
+                const response = await fetch('embeddings.json');
+                if (!response.ok) {
+                    throw new Error('Failed to load embeddings.json');
+                }
+                this.data = await response.json();
+                this.assignColors();
+            }
+
+            assignColors() {
+                const categories = [...new Set(this.data.map(item => item['CCS Category']))];
+                categories.forEach((category, index) => {
+                    this.colors[category] = this.colorPalette[index % this.colorPalette.length];
+                });
+                this.createLegend(categories);
+            }
+
+            createLegend(categories) {
+                const legend = document.getElementById('legend');
+                const legendItems = document.getElementById('legend-items');
+                
+                categories.forEach(category => {
+                    const item = document.createElement('div');
+                    item.className = 'legend-item';
+                    item.innerHTML = `
+                        <div class="legend-color" style="background-color: ${this.colors[category]}"></div>
+                        <span>${category}</span>
+                    `;
+                    legendItems.appendChild(item);
+                });
+                
+                legend.style.display = 'block';
+            }
+
+            setupScene() {
+                const container = document.getElementById('graph-container');
+                const width = container.clientWidth;
+                const height = container.clientHeight;
+
+                this.scene = new THREE.Scene();
+                this.scene.background = new THREE.Color(0x0f0f17);
+
+                this.camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+                this.camera.position.set(10, 10, 10);
+
+                this.renderer = new THREE.WebGLRenderer({ antialias: true });
+                this.renderer.setSize(width, height);
+                this.renderer.setClearColor(0x0f0f17);
+                container.appendChild(this.renderer.domElement);
+
+                // Add ambient light
+                const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+                this.scene.add(ambientLight);
+
+                // Add directional light
+                const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+                directionalLight.position.set(10, 10, 5);
+                this.scene.add(directionalLight);
+
+                // Add grid
+                const gridHelper = new THREE.GridHelper(20, 20, 0x333333, 0x333333);
+                this.scene.add(gridHelper);
+
+                // Add axes helper
+                const axesHelper = new THREE.AxesHelper(5);
+                this.scene.add(axesHelper);
+            }
+
+            createPoints() {
+                const geometry = new THREE.SphereGeometry(0.1, 8, 6);
+                
+                this.data.forEach((item, index) => {
+                    const material = new THREE.MeshLambertMaterial({
+                        color: this.colors[item['CCS Category']]
+                    });
+                    
+                    const point = new THREE.Mesh(geometry, material);
+                    point.position.set(
+                        item['Embedding 1'],
+                        item['Embedding 2'],
+                        item['Embedding 3']
+                    );
+                    
+                    point.userData = {
+                        index: index,
+                        code: item['ICD10 Code'],
+                        description: item['ICD10 Description'],
+                        category: item['CCS Category']
+                    };
+                    
+                    this.scene.add(point);
+                    this.points.push(point);
+                });
+            }
+
+            setupControls() {
+                // Simple orbit controls implementation
+                let isDragging = false;
+                let previousMousePosition = { x: 0, y: 0 };
+
+                this.renderer.domElement.addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    previousMousePosition = { x: e.clientX, y: e.clientY };
+                });
+
+                this.renderer.domElement.addEventListener('mousemove', (e) => {
+                    if (isDragging) {
+                        const deltaMove = {
+                            x: e.clientX - previousMousePosition.x,
+                            y: e.clientY - previousMousePosition.y
+                        };
+
+                        const deltaRotationQuaternion = new THREE.Quaternion()
+                            .setFromEuler(new THREE.Euler(
+                                deltaMove.y * 0.01,
+                                deltaMove.x * 0.01,
+                                0,
+                                'XYZ'
+                            ));
+
+                        this.camera.quaternion.multiplyQuaternions(deltaRotationQuaternion, this.camera.quaternion);
+                        previousMousePosition = { x: e.clientX, y: e.clientY };
+                    }
+                });
+
+                this.renderer.domElement.addEventListener('mouseup', () => {
+                    isDragging = false;
+                });
+
+                // Zoom with mouse wheel
+                this.renderer.domElement.addEventListener('wheel', (e) => {
+                    const zoomSpeed = 0.1;
+                    const direction = e.deltaY > 0 ? 1 : -1;
+                    this.camera.position.multiplyScalar(1 + direction * zoomSpeed);
+                });
+            }
+
+            setupEventListeners() {
+                // Mouse hover for tooltip
+                this.renderer.domElement.addEventListener('mousemove', (e) => {
+                    const rect = this.renderer.domElement.getBoundingClientRect();
+                    this.mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+                    this.mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+                    this.raycaster.setFromCamera(this.mouse, this.camera);
+                    const intersects = this.raycaster.intersectObjects(this.points);
+
+                    if (intersects.length > 0) {
+                        const point = intersects[0].object;
+                        this.showTooltip(e, point.userData);
+                    } else {
+                        this.hideTooltip();
+                    }
+                });
+
+                // Search functionality
+                const searchInput = document.getElementById('search-input');
+                const dropdown = document.getElementById('dropdown');
+
+                searchInput.addEventListener('input', (e) => {
+                    const query = e.target.value.toLowerCase();
+                    if (query.length > 0) {
+                        const matches = this.data.filter(item => 
+                            item['ICD10 Code'].toLowerCase().includes(query)
+                        ).slice(0, 10);
+
+                        if (matches.length > 0) {
+                            dropdown.innerHTML = matches.map(item => 
+                                `<div class="dropdown-item" data-code="${item['ICD10 Code']}">
+                                    <strong>${item['ICD10 Code']}</strong> - ${item['ICD10 Description']}
+                                </div>`
+                            ).join('');
+                            dropdown.style.display = 'block';
+                        } else {
+                            dropdown.style.display = 'none';
+                        }
+                    } else {
+                        dropdown.style.display = 'none';
+                    }
+                });
+
+                dropdown.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('dropdown-item')) {
+                        const code = e.target.getAttribute('data-code');
+                        this.selectCode(code);
+                        searchInput.value = code;
+                        dropdown.style.display = 'none';
+                    }
+                });
+
+                // Close dropdown when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('.search-box')) {
+                        dropdown.style.display = 'none';
+                    }
+                });
+
+                // Handle window resize
+                window.addEventListener('resize', () => {
+                    const container = document.getElementById('graph-container');
+                    const width = container.clientWidth;
+                    const height = container.clientHeight;
+
+                    this.camera.aspect = width / height;
+                    this.camera.updateProjectionMatrix();
+                    this.renderer.setSize(width, height);
+                });
+            }
+
+            selectCode(code) {
+                const dataIndex = this.data.findIndex(item => item['ICD10 Code'] === code);
+                if (dataIndex !== -1) {
+                    const point = this.points[dataIndex];
+                    
+                    // Highlight selected point
+                    if (this.selectedPoint) {
+                        this.selectedPoint.material.emissive.setHex(0x000000);
+                    }
+                    
+                    this.selectedPoint = point;
+                    point.material.emissive.setHex(0x444444);
+                    
+                    this.showTooltipForPoint(point);
+                    this.showClosestPoints(dataIndex);
+                    
+                    // Center camera on point
+                    this.camera.lookAt(point.position);
+                }
+            }
+
+            showTooltipForPoint(point) {
+                const tooltip = document.getElementById('tooltip');
+                tooltip.innerHTML = `
+                    <div class="tooltip-code">${point.userData.code}</div>
+                    <div class="tooltip-description">${point.userData.description}</div>
+                    <div class="tooltip-category">Category: ${point.userData.category}</div>
+                `;
+                tooltip.style.display = 'block';
+                tooltip.style.left = '50%';
+                tooltip.style.top = '20px';
+                tooltip.style.transform = 'translateX(-50%)';
+            }
+
+            showClosestPoints(selectedIndex) {
+                const selectedItem = this.data[selectedIndex];
+                const distances = this.data.map((item, index) => {
+                    if (index === selectedIndex) return { index, distance: Infinity };
+                    
+                    const distance = Math.sqrt(
+                        Math.pow(item['Embedding 1'] - selectedItem['Embedding 1'], 2) +
+                        Math.pow(item['Embedding 2'] - selectedItem['Embedding 2'], 2) +
+                        Math.pow(item['Embedding 3'] - selectedItem['Embedding 3'], 2)
+                    );
+                    
+                    return { index, distance };
+                }).sort((a, b) => a.distance - b.distance).slice(0, 3);
+
+                const closestSection = document.getElementById('closest-section');
+                const closestItems = document.getElementById('closest-items');
+                
+                closestItems.innerHTML = distances.map(({ index, distance }) => {
+                    const item = this.data[index];
+                    return `
+                        <div class="closest-item">
+                            <div class="closest-distance">Distance: ${distance.toFixed(3)}</div>
+                            <div class="closest-code">${item['ICD10 Code']}</div>
+                            <div class="closest-description">${item['ICD10 Description']}</div>
+                            <div class="closest-category">${item['CCS Category']}</div>
+                        </div>
+                    `;
+                }).join('');
+                
+                closestSection.style.display = 'block';
+            }
+
+            showTooltip(event, userData) {
+                this.tooltip.innerHTML = `
+                    <div class="tooltip-code">${userData.code}</div>
+                    <div class="tooltip-description">${userData.description}</div>
+                    <div class="tooltip-category">Category: ${userData.category}</div>
+                `;
+                this.tooltip.style.display = 'block';
+                this.tooltip.style.left = (event.clientX + 15) + 'px';
+                this.tooltip.style.top = (event.clientY - 10) + 'px';
+            }
+
+            hideTooltip() {
+                if (!this.selectedPoint) {
+                    this.tooltip.style.display = 'none';
+                }
+            }
+
+            hideLoading() {
+                document.getElementById('loading').style.display = 'none';
+            }
+
+            showError(message) {
+                const loading = document.getElementById('loading');
+                loading.innerHTML = `<div style="color: #ff6b6b;">${message}</div>`;
+            }
+
+            animate() {
+                requestAnimationFrame(() => this.animate());
+                this.renderer.render(this.scene, this.camera);
+            }
+        }
+
+        // Initialize the visualizer when the page loads
+        window.addEventListener('load', () => {
+            new ICD10Visualizer();
+        });
+    </script>
+</body>
+</html>
