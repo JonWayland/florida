@@ -32,6 +32,33 @@
             border-right: 1px solid rgba(255, 255, 255, 0.1);
         }
 
+        .graph-title {
+            position: absolute;
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            color: white;
+            text-align: center;
+        }
+
+        .graph-title h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0 0 0.5rem 0;
+            background: linear-gradient(45deg, #64b5f6, #81c784);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .graph-title p {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin: 0;
+            font-weight: 300;
+        }
+
         .controls-container {
             flex: 1;
             padding: 2rem;
@@ -159,7 +186,6 @@
 
         .closest-section {
             margin-top: 2rem;
-        }
             font-size: 1.1rem;
             margin-bottom: 1rem;
             color: #81c784;
@@ -169,8 +195,8 @@
         .closest-item {
             background: rgba(255, 255, 255, 0.05);
             border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 0.75rem;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
             border-left: 3px solid #81c784;
             transition: all 0.3s ease;
         }
@@ -203,7 +229,7 @@
             font-size: 0.75rem;
             color: #64b5f6;
             float: right;
-            margin-top: -1.5rem;
+            margin-top: -0.5rem;
         }
 
         .tooltip {
@@ -238,19 +264,27 @@
 
         .legend {
             position: absolute;
-            top: 20px;
+            bottom: 20px;
             left: 20px;
             background: rgba(26, 26, 46, 0.9);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 8px;
             padding: 1rem;
             backdrop-filter: blur(20px);
+            max-height: 220px;
+            width: 500px;
+            overflow-y: auto;
         }
 
         .legend h4 {
             color: #64b5f6;
             margin-bottom: 0.5rem;
             font-size: 0.9rem;
+            position: sticky;
+            top: 0;
+            background: rgba(26, 26, 46, 0.95);
+            padding-bottom: 0.5rem;
+            z-index: 1;
         }
 
         .legend-item {
@@ -313,6 +347,10 @@
 <body>
     <div class="container">
         <div class="graph-container" id="graph-container">
+            <div class="graph-title">
+                <h1>Neural Embeddings</h1>
+                <p>Learning the Language of Diagnoses</p>
+            </div>
             <div class="loading" id="loading">
                 <div class="spinner"></div>
                 <div>Loading embeddings data...</div>
@@ -455,7 +493,8 @@
                 this.scene.background = new THREE.Color(0x0f0f17);
 
                 this.camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-                this.camera.position.set(10, 10, 10);
+                this.camera.position.set(10, 12, 10);
+                this.camera.lookAt(0, 0, 0); // Look at the origin (axes intersection)
 
                 this.renderer = new THREE.WebGLRenderer({ antialias: true });
                 this.renderer.setSize(width, height);
@@ -482,13 +521,14 @@
 
             createPoints() {
                 // Create instanced geometry for better performance and cleaner look
-                const geometry = new THREE.CircleGeometry(0.05, 8);
+                const geometry = new THREE.CircleGeometry(0.04, 16);
                 
                 this.data.forEach((item, index) => {
                     const material = new THREE.MeshBasicMaterial({
                         color: this.colors[item['CCS Category']],
                         transparent: true,
-                        opacity: 0.8
+                        opacity: 0.4,
+                        depthWrite: false // Helps with transparency sorting
                     });
                     
                     const point = new THREE.Mesh(geometry, material);
@@ -569,7 +609,7 @@
                         const point = intersects[0].object;
                         this.showTooltip(e, point.userData);
                     } else {
-                        this.hideTooltip();
+                        this.tooltip.style.display = 'none';
                     }
                 });
 
@@ -608,14 +648,17 @@
                     }
                 });
 
+                // Add mouse leave event to hide tooltip when leaving the canvas
+                this.renderer.domElement.addEventListener('mouseleave', () => {
+                    this.tooltip.style.display = 'none';
+                });
+
                 // Close dropdown when clicking outside
                 document.addEventListener('click', (e) => {
                     if (!e.target.closest('.search-box')) {
                         dropdown.style.display = 'none';
                     }
                 });
-
-                // Handle window resize
                 window.addEventListener('resize', () => {
                     const container = document.getElementById('graph-container');
                     const width = container.clientWidth;
@@ -633,20 +676,47 @@
                     const selectedData = this.data[dataIndex];
                     const point = this.points[dataIndex];
                     
-                    // Highlight selected point
+                    // Reset previous selection
                     if (this.selectedPoint) {
-                        this.selectedPoint.material.opacity = 0.8;
+                        this.selectedPoint.material.opacity = 0.4;
                         this.selectedPoint.scale.set(1, 1, 1);
+                        // Remove any existing selection indicator
+                        if (this.selectedPoint.children.length > 0) {
+                            this.selectedPoint.remove(this.selectedPoint.children[0]);
+                        }
                     }
                     
                     this.selectedPoint = point;
+                    
+                    // Enhanced highlighting
                     point.material.opacity = 1.0;
-                    point.scale.set(1.5, 1.5, 1.5);
+                    point.scale.set(2.5, 2.5, 2.5);
+                    
+                    // Add pulsing ring indicator
+                    const ringGeometry = new THREE.RingGeometry(0.08, 0.12, 16);
+                    const ringMaterial = new THREE.MeshBasicMaterial({
+                        color: 0xffffff,
+                        transparent: true,
+                        opacity: 0.8,
+                        side: THREE.DoubleSide
+                    });
+                    const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+                    point.add(ring);
+                    
+                    // Animate the ring
+                    let time = 0;
+                    const animateRing = () => {
+                        if (this.selectedPoint === point) {
+                            time += 0.05;
+                            ring.material.opacity = 0.3 + 0.5 * Math.sin(time);
+                            ring.rotation.z += 0.02;
+                            requestAnimationFrame(animateRing);
+                        }
+                    };
+                    animateRing();
                     
                     // Show selected info in panel
                     this.showSelectedInfo(selectedData);
-                    
-                    this.showTooltipForPoint(point);
                     this.showClosestPoints(dataIndex);
                     
                     // Center camera on point
@@ -675,9 +745,11 @@
                     <div class="tooltip-category">Category: ${point.userData.category}</div>
                 `;
                 tooltip.style.display = 'block';
-                tooltip.style.left = '50%';
-                tooltip.style.top = '20px';
-                tooltip.style.transform = 'translateX(-50%)';
+                tooltip.style.left = 'auto';
+                tooltip.style.right = '20px';
+                tooltip.style.top = 'auto';
+                tooltip.style.bottom = '20px';
+                tooltip.style.transform = 'none';
             }
 
             showClosestPoints(selectedIndex) {
@@ -724,9 +796,7 @@
             }
 
             hideTooltip() {
-                if (!this.selectedPoint) {
-                    this.tooltip.style.display = 'none';
-                }
+                // Tooltip functionality removed - no longer needed
             }
 
             hideLoading() {
