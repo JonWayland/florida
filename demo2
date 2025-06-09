@@ -357,11 +357,35 @@
             }
 
             async loadData() {
-                const response = await fetch('embeddings.json');
-                if (!response.ok) {
-                    throw new Error('Failed to load embeddings.json');
-                }
-                this.data = await response.json();
+                // Embedded JSON data - replace this array with your complete embeddings.json content
+                this.data = [
+                    {
+                        "ICD10 Code": "E119",
+                        "ICD10 Description": "Type 2 diabetes mellitus without complications",
+                        "CCS Category": "Endocrine; nutritional; and metabolic diseases and immunity disorders",
+                        "Embedding 1": -1.1674,
+                        "Embedding 2": 2.0207,
+                        "Embedding 3": 0.8419
+                    },
+                    {
+                        "ICD10 Code": "J208",
+                        "ICD10 Description": "Acute bronchitis due to other specified organisms",
+                        "CCS Category": "Diseases of the respiratory system",
+                        "Embedding 1": -0.7186,
+                        "Embedding 2": 1.9443,
+                        "Embedding 3": 1.1439
+                    },
+                    {
+                        "ICD10 Code": "R7989",
+                        "ICD10 Description": "Other specified abnormal findings of blood chemistry",
+                        "CCS Category": "Symptoms; signs; and ill-defined conditions and factors influencing health status",
+                        "Embedding 1": 1.1607,
+                        "Embedding 2": 2.1304,
+                        "Embedding 3": 0.7153
+                    }
+                    // ADD YOUR COMPLETE DATA HERE - copy and paste the entire contents of your embeddings.json file
+                    // Make sure to add a comma after the closing brace of each record except the last one
+                ];
                 this.assignColors();
             }
 
