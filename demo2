@@ -129,11 +129,37 @@
             border-bottom: none;
         }
 
+        .selected-info {
+            background: rgba(100, 181, 246, 0.1);
+            border: 1px solid rgba(100, 181, 246, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .selected-code {
+            font-weight: 600;
+            color: #64b5f6;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .selected-description {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+            font-size: 0.9rem;
+        }
+
+        .selected-category {
+            color: #81c784;
+            font-size: 0.85rem;
+            font-style: italic;
+        }
+
         .closest-section {
             margin-top: 2rem;
         }
-
-        .closest-section h3 {
             font-size: 1.1rem;
             margin-bottom: 1rem;
             color: #81c784;
@@ -309,6 +335,12 @@
                     <input type="text" class="search-input" id="search-input" placeholder="Type ICD10 code (e.g., A00.0)">
                     <div class="dropdown" id="dropdown" style="display: none;"></div>
                 </div>
+                
+                <div class="selected-info" id="selected-info" style="display: none;">
+                    <div class="selected-code" id="selected-code"></div>
+                    <div class="selected-description" id="selected-description"></div>
+                    <div class="selected-category" id="selected-category"></div>
+                </div>
             </div>
             
             <div class="closest-section" id="closest-section" style="display: none;">
@@ -449,11 +481,14 @@
             }
 
             createPoints() {
-                const geometry = new THREE.SphereGeometry(0.1, 8, 6);
+                // Create instanced geometry for better performance and cleaner look
+                const geometry = new THREE.CircleGeometry(0.05, 8);
                 
                 this.data.forEach((item, index) => {
-                    const material = new THREE.MeshLambertMaterial({
-                        color: this.colors[item['CCS Category']]
+                    const material = new THREE.MeshBasicMaterial({
+                        color: this.colors[item['CCS Category']],
+                        transparent: true,
+                        opacity: 0.8
                     });
                     
                     const point = new THREE.Mesh(geometry, material);
@@ -462,6 +497,9 @@
                         item['Embedding 2'],
                         item['Embedding 3']
                     );
+                    
+                    // Make points always face the camera
+                    point.lookAt(this.camera.position);
                     
                     point.userData = {
                         index: index,
@@ -592,15 +630,21 @@
             selectCode(code) {
                 const dataIndex = this.data.findIndex(item => item['ICD10 Code'] === code);
                 if (dataIndex !== -1) {
+                    const selectedData = this.data[dataIndex];
                     const point = this.points[dataIndex];
                     
                     // Highlight selected point
                     if (this.selectedPoint) {
-                        this.selectedPoint.material.emissive.setHex(0x000000);
+                        this.selectedPoint.material.opacity = 0.8;
+                        this.selectedPoint.scale.set(1, 1, 1);
                     }
                     
                     this.selectedPoint = point;
-                    point.material.emissive.setHex(0x444444);
+                    point.material.opacity = 1.0;
+                    point.scale.set(1.5, 1.5, 1.5);
+                    
+                    // Show selected info in panel
+                    this.showSelectedInfo(selectedData);
                     
                     this.showTooltipForPoint(point);
                     this.showClosestPoints(dataIndex);
@@ -608,6 +652,19 @@
                     // Center camera on point
                     this.camera.lookAt(point.position);
                 }
+            }
+
+            showSelectedInfo(data) {
+                const selectedInfo = document.getElementById('selected-info');
+                const selectedCode = document.getElementById('selected-code');
+                const selectedDescription = document.getElementById('selected-description');
+                const selectedCategory = document.getElementById('selected-category');
+                
+                selectedCode.textContent = data['ICD10 Code'];
+                selectedDescription.textContent = data['ICD10 Description'];
+                selectedCategory.textContent = `Category: ${data['CCS Category']}`;
+                
+                selectedInfo.style.display = 'block';
             }
 
             showTooltipForPoint(point) {
@@ -683,6 +740,12 @@
 
             animate() {
                 requestAnimationFrame(() => this.animate());
+                
+                // Make points always face the camera for consistent appearance
+                this.points.forEach(point => {
+                    point.lookAt(this.camera.position);
+                });
+                
                 this.renderer.render(this.scene, this.camera);
             }
         }
