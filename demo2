@@ -1,829 +1,3465 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>ICD10 3D Embeddings Viewer</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script src="three.min.js"></script>
+
     <style>
+
         * {
+
             margin: 0;
+
             padding: 0;
+
             box-sizing: border-box;
+
         }
+
+ 
 
         body {
+
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
             background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+
             color: #ffffff;
+
             height: 100vh;
+
             overflow: hidden;
+
         }
+
+ 
 
         .container {
+
             display: flex;
+
             height: 100vh;
+
         }
+
+ 
 
         .graph-container {
+
             flex: 2;
+
             position: relative;
+
             background: rgba(15, 15, 35, 0.8);
+
             border-right: 1px solid rgba(255, 255, 255, 0.1);
+
         }
+
+ 
 
         .graph-title {
+
             position: absolute;
+
             top: 40px;
+
             left: 50%;
+
             transform: translateX(-50%);
+
             z-index: 100;
+
             color: white;
+
             text-align: center;
+
         }
+
+ 
 
         .graph-title h1 {
+
             font-size: 2.5rem;
+
             font-weight: 700;
+
             margin: 0 0 0.5rem 0;
+
             background: linear-gradient(45deg, #64b5f6, #81c784);
+
             -webkit-background-clip: text;
+
             -webkit-text-fill-color: transparent;
+
             background-clip: text;
+
         }
+
+ 
 
         .graph-title p {
+
             font-size: 1.1rem;
+
             color: rgba(255, 255, 255, 0.8);
+
             margin: 0;
+
             font-weight: 300;
+
         }
+
+ 
+
+        .home-button {
+
+            position: absolute;
+
+            top: 20px;
+
+            left: 20px;
+
+            z-index: 100;
+
+            text-decoration: none;
+
+            background: linear-gradient(135deg, #00bcd4, #0097a7);
+
+            color: white;
+
+            padding: 12px 24px;
+
+            border-radius: 50px;
+
+            font-size: 0.9rem;
+
+            font-weight: 600;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            transition: all 0.3s ease;
+
+            box-shadow: 0 4px 15px rgba(0, 188, 212, 0.3);
+
+        }
+
+ 
+
+        .home-button:hover {
+
+            transform: translateY(-2px);
+
+            box-shadow: 0 6px 20px rgba(0, 188, 212, 0.4);
+
+            background: linear-gradient(135deg, #26c6da, #00acc1);
+
+        }
+
+ 
+
+        .home-button::before {
+
+            content: "🏠";
+
+            font-size: 1rem;
+
+        }
+
+ 
 
         .controls-container {
+
             flex: 1;
+
             padding: 2rem;
+
             background: rgba(26, 26, 46, 0.9);
+
             backdrop-filter: blur(20px);
+
             overflow-y: auto;
+
         }
+
+ 
 
         .header {
+
             text-align: center;
+
             margin-bottom: 2rem;
+
             padding: 1rem 0;
+
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
         }
+
+ 
 
         .header h1 {
+
             font-size: 2rem;
+
             font-weight: 300;
+
             background: linear-gradient(45deg, #64b5f6, #81c784);
+
             -webkit-background-clip: text;
+
             -webkit-text-fill-color: transparent;
+
             background-clip: text;
+
             margin-bottom: 0.5rem;
+
         }
+
+ 
 
         .header p {
+
             color: rgba(255, 255, 255, 0.7);
+
             font-size: 0.9rem;
+
         }
+
+ 
 
         .search-section {
+
             margin-bottom: 2rem;
+
         }
+
+ 
 
         .search-section h3 {
+
             font-size: 1.1rem;
+
             margin-bottom: 1rem;
+
             color: #64b5f6;
+
             font-weight: 400;
+
         }
+
+ 
 
         .search-box {
+
             position: relative;
+
             margin-bottom: 1rem;
+
         }
+
+ 
 
         .search-input {
+
             width: 100%;
+
             padding: 0.75rem 1rem;
+
             background: rgba(255, 255, 255, 0.05);
+
             border: 1px solid rgba(255, 255, 255, 0.2);
+
             border-radius: 8px;
+
             color: white;
+
             font-size: 0.9rem;
+
             transition: all 0.3s ease;
+
         }
+
+ 
 
         .search-input:focus {
+
             outline: none;
+
             border-color: #64b5f6;
+
             box-shadow: 0 0 20px rgba(100, 181, 246, 0.3);
+
             background: rgba(255, 255, 255, 0.08);
+
         }
+
+ 
 
         .search-input::placeholder {
+
             color: rgba(255, 255, 255, 0.5);
+
         }
+
+ 
 
         .dropdown {
+
             position: absolute;
+
             top: 100%;
+
             left: 0;
+
             right: 0;
+
             background: rgba(26, 26, 46, 0.95);
+
             border: 1px solid rgba(255, 255, 255, 0.2);
+
             border-radius: 8px;
+
             max-height: 200px;
+
             overflow-y: auto;
+
             z-index: 1000;
+
             backdrop-filter: blur(20px);
+
         }
+
+ 
 
         .dropdown-item {
+
             padding: 0.75rem 1rem;
+
             cursor: pointer;
+
             transition: background 0.2s ease;
+
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+
         }
+
+ 
 
         .dropdown-item:hover {
+
             background: rgba(100, 181, 246, 0.2);
+
         }
+
+ 
 
         .dropdown-item:last-child {
+
             border-bottom: none;
+
         }
+
+ 
+
+        .or-divider {
+
+            text-align: center;
+
+            margin: 1.5rem 0;
+
+            color: rgba(255, 255, 255, 0.6);
+
+            font-size: 0.9rem;
+
+            position: relative;
+
+        }
+
+ 
+
+        .or-divider::before {
+
+            content: '';
+
+            position: absolute;
+
+            top: 50%;
+
+            left: 0;
+
+            right: 0;
+
+            height: 1px;
+
+            background: rgba(255, 255, 255, 0.1);
+
+            z-index: 1;
+
+        }
+
+ 
+
+        .or-divider span {
+
+            background: rgba(26, 26, 46, 0.9);
+
+            padding: 0 1rem;
+
+            position: relative;
+
+            z-index: 2;
+
+        }
+
+ 
+
+        .preset-section {
+
+            margin-bottom: 2rem;
+
+        }
+
+ 
+
+        .preset-section h4 {
+
+            font-size: 1rem;
+
+            margin-bottom: 1rem;
+
+            color: #81c784;
+
+            font-weight: 400;
+
+        }
+
+ 
+
+        .preset-dropdown {
+
+            width: 100%;
+
+            padding: 0.75rem 1rem;
+
+            background: rgba(255, 255, 255, 0.05);
+
+            border: 1px solid rgba(255, 255, 255, 0.2);
+
+            border-radius: 8px;
+
+            color: white;
+
+            font-size: 0.9rem;
+
+            cursor: pointer;
+
+            transition: all 0.3s ease;
+
+        }
+
+ 
+
+        .preset-dropdown:focus {
+
+            outline: none;
+
+            border-color: #81c784;
+
+            box-shadow: 0 0 20px rgba(129, 199, 132, 0.3);
+
+            background: rgba(255, 255, 255, 0.08);
+
+        }
+
+ 
+
+        .preset-dropdown option {
+
+            background: rgba(26, 26, 46, 0.95);
+
+            color: white;
+
+        }
+
+ 
 
         .selected-info {
+
             background: rgba(100, 181, 246, 0.1);
+
             border: 1px solid rgba(100, 181, 246, 0.3);
+
             border-radius: 8px;
+
             padding: 1rem;
+
             margin-top: 1rem;
+
         }
+
+ 
 
         .selected-code {
+
             font-weight: 600;
+
             color: #64b5f6;
+
             font-size: 1.1rem;
+
             margin-bottom: 0.5rem;
+
         }
+
+ 
 
         .selected-description {
+
             color: rgba(255, 255, 255, 0.9);
+
             margin-bottom: 0.5rem;
+
             line-height: 1.4;
+
             font-size: 0.9rem;
+
         }
+
+ 
 
         .selected-category {
+
             color: #81c784;
+
             font-size: 0.85rem;
+
             font-style: italic;
+
         }
+
+ 
 
         .closest-section {
+
             margin-top: 2rem;
+
             font-size: 1.1rem;
+
             margin-bottom: 1rem;
+
             color: #81c784;
+
             font-weight: 400;
+
         }
+
+ 
 
         .closest-item {
+
             background: rgba(255, 255, 255, 0.05);
+
             border-radius: 8px;
+
             padding: 1.25rem;
+
             margin-bottom: 1.5rem;
+
             border-left: 3px solid #81c784;
+
             transition: all 0.3s ease;
+
         }
+
+ 
 
         .closest-item:hover {
+
             background: rgba(255, 255, 255, 0.08);
+
             transform: translateX(5px);
+
         }
+
+ 
 
         .closest-code {
+
             font-weight: 600;
+
             color: #81c784;
+
             font-size: 0.9rem;
+
         }
+
+ 
 
         .closest-description {
+
             font-size: 0.85rem;
+
             color: rgba(255, 255, 255, 0.8);
+
             margin: 0.5rem 0;
+
             line-height: 1.4;
+
         }
+
+ 
 
         .closest-category {
+
             font-size: 0.8rem;
+
             color: rgba(255, 255, 255, 0.6);
+
             font-style: italic;
+
         }
+
+ 
 
         .closest-distance {
+
             font-size: 0.75rem;
+
             color: #64b5f6;
+
             float: right;
+
             margin-top: -0.5rem;
+
         }
+
+ 
 
         .tooltip {
+
             position: absolute;
+
             background: rgba(26, 26, 46, 0.95);
+
             border: 1px solid rgba(255, 255, 255, 0.2);
+
             border-radius: 8px;
+
             padding: 1rem;
+
             pointer-events: none;
+
             z-index: 1000;
+
             backdrop-filter: blur(20px);
+
             min-width: 250px;
+
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+
         }
+
+ 
 
         .tooltip-code {
+
             font-weight: 600;
+
             color: #64b5f6;
+
             margin-bottom: 0.5rem;
+
         }
+
+ 
 
         .tooltip-description {
+
             color: rgba(255, 255, 255, 0.9);
+
             margin-bottom: 0.5rem;
+
             line-height: 1.4;
+
         }
+
+ 
 
         .tooltip-category {
+
             color: #81c784;
+
             font-size: 0.9rem;
+
         }
+
+ 
 
         .legend {
+
             position: absolute;
+
             bottom: 20px;
+
             left: 20px;
+
             background: rgba(26, 26, 46, 0.9);
+
             border: 1px solid rgba(255, 255, 255, 0.2);
+
             border-radius: 8px;
+
             padding: 1rem;
+
             backdrop-filter: blur(20px);
+
             max-height: 220px;
+
             width: 500px;
+
             overflow-y: auto;
+
         }
+
+ 
 
         .legend h4 {
+
             color: #64b5f6;
+
             margin-bottom: 0.5rem;
+
             font-size: 0.9rem;
+
             position: sticky;
+
             top: 0;
+
             background: rgba(26, 26, 46, 0.95);
+
             padding-bottom: 0.5rem;
+
             z-index: 1;
+
         }
+
+ 
 
         .legend-item {
+
             display: flex;
+
             align-items: center;
+
             margin-bottom: 0.25rem;
+
             font-size: 0.8rem;
+
         }
+
+ 
 
         .legend-color {
+
             width: 12px;
+
             height: 12px;
+
             border-radius: 50%;
+
             margin-right: 0.5rem;
+
         }
+
+ 
 
         .loading {
+
             position: absolute;
+
             top: 50%;
+
             left: 50%;
+
             transform: translate(-50%, -50%);
+
             text-align: center;
+
             color: rgba(255, 255, 255, 0.7);
+
         }
+
+ 
 
         .spinner {
+
             border: 2px solid rgba(255, 255, 255, 0.1);
+
             border-left: 2px solid #64b5f6;
+
             border-radius: 50%;
+
             width: 30px;
+
             height: 30px;
+
             animation: spin 1s linear infinite;
+
             margin: 0 auto 1rem;
+
         }
+
+ 
 
         @keyframes spin {
+
             0% { transform: rotate(0deg); }
+
             100% { transform: rotate(360deg); }
+
         }
+
+ 
 
         /* Scrollbar styling */
+
         ::-webkit-scrollbar {
+
             width: 6px;
+
         }
+
+ 
 
         ::-webkit-scrollbar-track {
+
             background: rgba(255, 255, 255, 0.05);
+
         }
+
+ 
 
         ::-webkit-scrollbar-thumb {
+
             background: rgba(255, 255, 255, 0.2);
+
             border-radius: 3px;
+
         }
 
+ 
+
         ::-webkit-scrollbar-thumb:hover {
+
             background: rgba(255, 255, 255, 0.3);
+
         }
+
     </style>
+
 </head>
+
 <body>
+
     <div class="container">
+
         <div class="graph-container" id="graph-container">
+
+ 
+
+          <a href="demo-landing.html" class="home-button">Home</a>
+
+ 
+
             <div class="graph-title">
+
                 <h1>Neural Embeddings</h1>
+
                 <p>Learning the Language of Diagnoses</p>
+
             </div>
+
             <div class="loading" id="loading">
+
                 <div class="spinner"></div>
+
                 <div>Loading embeddings data...</div>
+
             </div>
+
             <div class="legend" id="legend" style="display: none;">
+
                 <h4>Categories</h4>
+
                 <div id="legend-items"></div>
+
             </div>
+
         </div>
-        
+
+       
+
         <div class="controls-container">
+
             <div class="header">
+
                 <h1>ICD10 Explorer</h1>
+
                 <p>Interactive 3D visualization of medical code embeddings</p>
+
             </div>
-            
+
+           
+
             <div class="search-section">
+
                 <h3>Search ICD10 Code</h3>
+
                 <div class="search-box">
+
                     <input type="text" class="search-input" id="search-input" placeholder="Type ICD10 code (e.g., A00.0)">
+
                     <div class="dropdown" id="dropdown" style="display: none;"></div>
+
                 </div>
-                
+
+               
+
+                <div class="or-divider">
+
+                    <span>OR</span>
+
+                </div>
+
+               
+
+                <div class="preset-section">
+
+                    <h4>Select from these prevalent ICD10 codes</h4>
+
+                    <select class="preset-dropdown" id="preset-dropdown">
+
+                        <option value="">-- Select a common diagnosis --</option>
+
+                        <option value="I10">I10 - Essential (primary) hypertension</option>
+
+                        <option value="E119">E119 - Type 2 diabetes mellitus without complications</option>
+
+                        <option value="M545">M545 - Low back pain</option>
+
+                        <option value="J449">J449 - Chronic obstructive pulmonary disease, unspecified</option>
+
+                        <option value="F329">F329 - Major depressive disorder, single episode, unspecified</option>
+
+                    </select>
+
+                </div>
+
+               
+
                 <div class="selected-info" id="selected-info" style="display: none;">
+
                     <div class="selected-code" id="selected-code"></div>
+
                     <div class="selected-description" id="selected-description"></div>
+
                     <div class="selected-category" id="selected-category"></div>
+
                 </div>
+
             </div>
-            
+
+           
+
             <div class="closest-section" id="closest-section" style="display: none;">
+
                 <h3>Nearest Neighbors</h3>
+
                 <div id="closest-items"></div>
+
             </div>
+
         </div>
+
     </div>
+
+ 
 
     <div class="tooltip" id="tooltip" style="display: none;"></div>
 
+ 
+
     <script>
+
         class ICD10Visualizer {
+
             constructor() {
+
                 this.scene = null;
+
                 this.camera = null;
+
                 this.renderer = null;
+
                 this.data = [];
+
                 this.points = [];
+
                 this.raycaster = new THREE.Raycaster();
+
                 this.mouse = new THREE.Vector2();
+
                 this.tooltip = document.getElementById('tooltip');
+
                 this.selectedPoint = null;
+
                 this.colors = {};
+
                 this.colorPalette = [
+
                     '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
+
                     '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9',
+
                     '#F8C471', '#82E0AA', '#F1948A', '#85C1E9', '#D5A6BD'
+
                 ];
+
                 this.init();
+
             }
+
+ 
 
             async init() {
+
                 try {
+
                     await this.loadData();
+
                     this.setupScene();
+
                     this.createPoints();
+
                     this.setupControls();
+
                     this.setupEventListeners();
+
                     this.animate();
+
                     this.hideLoading();
+
                 } catch (error) {
+
                     console.error('Failed to initialize:', error);
+
                     this.showError('Failed to load data. Please ensure embeddings.json is available.');
+
                 }
+
             }
+
+ 
 
             async loadData() {
+
                 // Embedded JSON data - replace this array with your complete embeddings.json content
+
                 this.data = [
-                    {
-                        "ICD10 Code": "E119",
-                        "ICD10 Description": "Type 2 diabetes mellitus without complications",
-                        "CCS Category": "Endocrine; nutritional; and metabolic diseases and immunity disorders",
-                        "Embedding 1": -1.1674,
-                        "Embedding 2": 2.0207,
-                        "Embedding 3": 0.8419
-                    },
-                    {
-                        "ICD10 Code": "J208",
-                        "ICD10 Description": "Acute bronchitis due to other specified organisms",
-                        "CCS Category": "Diseases of the respiratory system",
-                        "Embedding 1": -0.7186,
-                        "Embedding 2": 1.9443,
-                        "Embedding 3": 1.1439
-                    },
-                    {
-                        "ICD10 Code": "R7989",
-                        "ICD10 Description": "Other specified abnormal findings of blood chemistry",
-                        "CCS Category": "Symptoms; signs; and ill-defined conditions and factors influencing health status",
-                        "Embedding 1": 1.1607,
-                        "Embedding 2": 2.1304,
-                        "Embedding 3": 0.7153
-                    }
-                    // ADD YOUR COMPLETE DATA HERE - copy and paste the entire contents of your embeddings.json file
-                    // Make sure to add a comma after the closing brace of each record except the last one
-                ];
+
+  {
+
+    "ICD10 Code": "A000",
+
+    "ICD10 Description": "Cholera due to Vibrio cholerae 01, biovar cholerae",
+
+    "CCS Category": "Diseases of the digestive system",
+
+    "Embedding 1": -3.0466,
+
+    "Embedding 2": 9.885,
+
+    "Embedding 3": -5.5748
+
+  },
+
+  {
+
+    "ICD10 Code": "A001",
+
+    "ICD10 Description": "Cholera due to Vibrio cholerae 01, biovar eltor",
+
+    "CCS Category": "Diseases of the digestive system",
+
+    "Embedding 1": -3.0932,
+
+    "Embedding 2": 9.984,
+
+    "Embedding 3": -5.5636
+
+  },
+
+  {
+
+    "ICD10 Code": "A009",
+
+    "ICD10 Description": "Cholera, unspecified",
+
+    "CCS Category": "Diseases of the digestive system",
+
+    "Embedding 1": -6.0059,
+
+    "Embedding 2": 7.733,
+
+    "Embedding 3": -2.0458
+
+  },
+
+  {
+
+    "ICD10 Code": "A0100",
+
+    "ICD10 Description": "Typhoid fever, unspecified",
+
+    "CCS Category": "Diseases of the digestive system",
+
+    "Embedding 1": -4.8897,
+
+    "Embedding 2": 4.2724,
+
+    "Embedding 3": -1.2926
+
+  },
+
+  {
+
+    "ICD10 Code": "A0101",
+
+    "ICD10 Description": "Typhoid meningitis",
+
+    "CCS Category": "Diseases of the nervous system and sense organs",
+
+    "Embedding 1": -5.1762,
+
+    "Embedding 2": 9.1065,
+
+    "Embedding 3": -0.6713
+
+  },
+
+  {
+
+    "ICD10 Code": "A0102",
+
+    "ICD10 Description": "Typhoid fever with heart involvement",
+
+    "CCS Category": "Infectious and parasitic diseases",
+
+    "Embedding 1": -4.6835,
+
+    "Embedding 2": 4.132,
+
+    "Embedding 3": 0.7336
+
+  },
+
+  {
+
+    "ICD10 Code": "A0103",
+
+    "ICD10 Description": "Typhoid pneumonia",
+
+    "CCS Category": "Diseases of the respiratory system",
+
+    "Embedding 1": -4.8717,
+
+    "Embedding 2": 9.3177,
+
+    "Embedding 3": -1.317
+
+  },
+
+  {
+
+    "ICD10 Code": "A0104",
+
+    "ICD10 Description": "Typhoid arthritis",
+
+    "CCS Category": "Diseases of the musculoskeletal system and connective tissue",
+
+    "Embedding 1": -4.3785,
+
+    "Embedding 2": 9.0803,
+
+    "Embedding 3": -0.8313
+
+  },
+
+  {
+
+    "ICD10 Code": "A0105",
+
+    "ICD10 Description": "Typhoid osteomyelitis",
+
+    "CCS Category": "Diseases of the musculoskeletal system and connective tissue",
+
+    "Embedding 1": -3.2254,
+
+    "Embedding 2": 9.8555,
+
+    "Embedding 3": -0.9716
+
+  },
+
+  {
+
+    "ICD10 Code": "A0109",
+
+    "ICD10 Description": "Typhoid fever with other complications",
+
+    "CCS Category": "Diseases of the digestive system",
+
+    "Embedding 1": -5.3837,
+
+    "Embedding 2": 2.8182,
+
+    "Embedding 3": 0.6964
+
+  },
+
+  {
+
+    "ICD10 Code": "I10",
+
+    "ICD10 Description": "Essential (primary) hypertension",
+
+    "CCS Category": "Diseases of the circulatory system",
+
+    "Embedding 1": 2.5,
+
+    "Embedding 2": -3.2,
+
+    "Embedding 3": 1.8
+
+  },
+
+  {
+
+    "ICD10 Code": "E119",
+
+    "ICD10 Description": "Type 2 diabetes mellitus without complications",
+
+    "CCS Category": "Endocrine, nutritional and metabolic diseases",
+
+    "Embedding 1": -1.5,
+
+    "Embedding 2": 2.8,
+
+    "Embedding 3": -0.9
+
+  },
+
+  {
+
+    "ICD10 Code": "M545",
+
+    "ICD10 Description": "Low back pain",
+
+    "CCS Category": "Diseases of the musculoskeletal system and connective tissue",
+
+    "Embedding 1": 3.2,
+
+    "Embedding 2": -1.5,
+
+    "Embedding 3": 2.1
+
+  },
+
+  {
+
+    "ICD10 Code": "J449",
+
+    "ICD10 Description": "Chronic obstructive pulmonary disease, unspecified",
+
+    "CCS Category": "Diseases of the respiratory system",
+
+    "Embedding 1": -2.1,
+
+    "Embedding 2": 4.5,
+
+    "Embedding 3": -1.8
+
+  },
+
+  {
+
+    "ICD10 Code": "F329",
+
+    "ICD10 Description": "Major depressive disorder, single episode, unspecified",
+
+    "CCS Category": "Mental and behavioral disorders",
+
+    "Embedding 1": 1.8,
+
+    "Embedding 2": -2.9,
+
+    "Embedding 3": 3.4
+
+  },
+
+  {
+
+    "ICD10 Code": "C6931",
+
+    "ICD10 Description": "Malignant neoplasm of right choroid",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 0.7559,
+
+    "Embedding 2": 6.0262,
+
+    "Embedding 3": 4.6311
+
+  },
+
+  {
+
+    "ICD10 Code": "C6932",
+
+    "ICD10 Description": "Malignant neoplasm of left choroid",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 0.7975,
+
+    "Embedding 2": 5.9414,
+
+    "Embedding 3": 4.5673
+
+  },
+
+  {
+
+    "ICD10 Code": "C6940",
+
+    "ICD10 Description": "Malignant neoplasm of unspecified ciliary body",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -1.2993,
+
+    "Embedding 2": 3.9365,
+
+    "Embedding 3": 4.3765
+
+  },
+
+  {
+
+    "ICD10 Code": "C6941",
+
+    "ICD10 Description": "Malignant neoplasm of right ciliary body",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 0.589,
+
+    "Embedding 2": 5.8825,
+
+    "Embedding 3": 4.4049
+
+  },
+
+  {
+
+    "ICD10 Code": "C6942",
+
+    "ICD10 Description": "Malignant neoplasm of left ciliary body",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 0.7125,
+
+    "Embedding 2": 5.9148,
+
+    "Embedding 3": 4.3069
+
+  },
+
+  {
+
+    "ICD10 Code": "C6950",
+
+    "ICD10 Description": "Malignant neoplasm of unspecified lacrimal gland and duct",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 0.4097,
+
+    "Embedding 2": 3.691,
+
+    "Embedding 3": 4.4713
+
+  },
+
+  {
+
+    "ICD10 Code": "C6951",
+
+    "ICD10 Description": "Malignant neoplasm of right lacrimal gland and duct",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 2.4274,
+
+    "Embedding 2": 4.8836,
+
+    "Embedding 3": 4.5962
+
+  },
+
+  {
+
+    "ICD10 Code": "C6952",
+
+    "ICD10 Description": "Malignant neoplasm of left lacrimal gland and duct",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 2.523,
+
+    "Embedding 2": 4.8611,
+
+    "Embedding 3": 4.5762
+
+  },
+
+  {
+
+    "ICD10 Code": "C6960",
+
+    "ICD10 Description": "Malignant neoplasm of unspecified orbit",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -0.7862,
+
+    "Embedding 2": 3.3596,
+
+    "Embedding 3": 4.7948
+
+  },
+
+  {
+
+    "ICD10 Code": "C6961",
+
+    "ICD10 Description": "Malignant neoplasm of right orbit",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 0.8863,
+
+    "Embedding 2": 5.4212,
+
+    "Embedding 3": 4.8287
+
+  },
+
+  {
+
+    "ICD10 Code": "C6962",
+
+    "ICD10 Description": "Malignant neoplasm of left orbit",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 1.0358,
+
+    "Embedding 2": 5.3897,
+
+    "Embedding 3": 4.7528
+
+  },
+
+  {
+
+    "ICD10 Code": "C6980",
+
+    "ICD10 Description": "Malignant neoplasm of ovrlp sites of unsp eye and adnexa",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -1.1463,
+
+    "Embedding 2": 2.8201,
+
+    "Embedding 3": 4.1179
+
+  },
+
+  {
+
+    "ICD10 Code": "C6981",
+
+    "ICD10 Description": "Malignant neoplasm of ovrlp sites of right eye and adnexa",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 0.473,
+
+    "Embedding 2": 3.9943,
+
+    "Embedding 3": 4.3774
+
+  },
+
+  {
+
+    "ICD10 Code": "C6982",
+
+    "ICD10 Description": "Malignant neoplasm of ovrlp sites of left eye and adnexa",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 0.6403,
+
+    "Embedding 2": 4.1509,
+
+    "Embedding 3": 4.3242
+
+  },
+
+  {
+
+    "ICD10 Code": "C6990",
+
+    "ICD10 Description": "Malignant neoplasm of unspecified site of unspecified eye",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -0.5481,
+
+    "Embedding 2": 1.8796,
+
+    "Embedding 3": 4.8818
+
+  },
+
+  {
+
+    "ICD10 Code": "C6991",
+
+    "ICD10 Description": "Malignant neoplasm of unspecified site of right eye",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 0.7227,
+
+    "Embedding 2": 3.1997,
+
+    "Embedding 3": 4.9906
+
+  },
+
+  {
+
+    "ICD10 Code": "C6992",
+
+    "ICD10 Description": "Malignant neoplasm of unspecified site of left eye",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 0.8831,
+
+    "Embedding 2": 3.2376,
+
+    "Embedding 3": 4.9455
+
+  },
+
+  {
+
+    "ICD10 Code": "C700",
+
+    "ICD10 Description": "Malignant neoplasm of cerebral meninges",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -1.3845,
+
+    "Embedding 2": 7.7771,
+
+    "Embedding 3": 4.259
+
+  },
+
+  {
+
+    "ICD10 Code": "C701",
+
+    "ICD10 Description": "Malignant neoplasm of spinal meninges",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -0.261,
+
+    "Embedding 2": 7.3251,
+
+    "Embedding 3": 4.1655
+
+  },
+
+  {
+
+    "ICD10 Code": "C709",
+
+    "ICD10 Description": "Malignant neoplasm of meninges, unspecified",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -0.8751,
+
+    "Embedding 2": 5.718,
+
+    "Embedding 3": 4.7672
+
+  },
+
+  {
+
+    "ICD10 Code": "C710",
+
+    "ICD10 Description": "Malignant neoplasm of cerebrum, except lobes and ventricles",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 1.0058,
+
+    "Embedding 2": 3.7633,
+
+    "Embedding 3": 4.4848
+
+  },
+
+  {
+
+    "ICD10 Code": "C711",
+
+    "ICD10 Description": "Malignant neoplasm of frontal lobe",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -0.3385,
+
+    "Embedding 2": 4.6488,
+
+    "Embedding 3": 4.3685
+
+  },
+
+  {
+
+    "ICD10 Code": "C712",
+
+    "ICD10 Description": "Malignant neoplasm of temporal lobe",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -0.6258,
+
+    "Embedding 2": 4.2675,
+
+    "Embedding 3": 4.5689
+
+  },
+
+  {
+
+    "ICD10 Code": "C713",
+
+    "ICD10 Description": "Malignant neoplasm of parietal lobe",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -0.4524,
+
+    "Embedding 2": 4.4959,
+
+    "Embedding 3": 4.6701
+
+  },
+
+  {
+
+    "ICD10 Code": "C714",
+
+    "ICD10 Description": "Malignant neoplasm of occipital lobe",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 0.153,
+
+    "Embedding 2": 4.8633,
+
+    "Embedding 3": 4.7828
+
+  },
+
+  {
+
+    "ICD10 Code": "C715",
+
+    "ICD10 Description": "Malignant neoplasm of cerebral ventricle",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -0.8889,
+
+    "Embedding 2": 4.937,
+
+    "Embedding 3": 4.9768
+
+  },
+
+  {
+
+    "ICD10 Code": "C716",
+
+    "ICD10 Description": "Malignant neoplasm of cerebellum",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -1.3873,
+
+    "Embedding 2": 4.8689,
+
+    "Embedding 3": 4.7765
+
+  },
+
+  {
+
+    "ICD10 Code": "C717",
+
+    "ICD10 Description": "Malignant neoplasm of brain stem",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -1.2872,
+
+    "Embedding 2": 3.94,
+
+    "Embedding 3": 4.6774
+
+  },
+
+  {
+
+    "ICD10 Code": "C718",
+
+    "ICD10 Description": "Malignant neoplasm of overlapping sites of brain",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -1.3062,
+
+    "Embedding 2": 2.385,
+
+    "Embedding 3": 5.6397
+
+  },
+
+  {
+
+    "ICD10 Code": "C719",
+
+    "ICD10 Description": "Malignant neoplasm of brain, unspecified",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -0.9136,
+
+    "Embedding 2": 2.1874,
+
+    "Embedding 3": 5.0179
+
+  },
+
+  {
+
+    "ICD10 Code": "C720",
+
+    "ICD10 Description": "Malignant neoplasm of spinal cord",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -0.1763,
+
+    "Embedding 2": 4.0835,
+
+    "Embedding 3": 4.8849
+
+  },
+
+  {
+
+    "ICD10 Code": "C721",
+
+    "ICD10 Description": "Malignant neoplasm of cauda equina",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 0.119,
+
+    "Embedding 2": 8.2459,
+
+    "Embedding 3": 2.7201
+
+  },
+
+  {
+
+    "ICD10 Code": "C7220",
+
+    "ICD10 Description": "Malignant neoplasm of unspecified olfactory nerve",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -0.6616,
+
+    "Embedding 2": 3.6765,
+
+    "Embedding 3": 4.4512
+
+  },
+
+  {
+
+    "ICD10 Code": "C7221",
+
+    "ICD10 Description": "Malignant neoplasm of right olfactory nerve",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 1.1036,
+
+    "Embedding 2": 5.8236,
+
+    "Embedding 3": 3.9789
+
+  },
+
+  {
+
+    "ICD10 Code": "C7222",
+
+    "ICD10 Description": "Malignant neoplasm of left olfactory nerve",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 1.232,
+
+    "Embedding 2": 5.8435,
+
+    "Embedding 3": 3.9856
+
+  },
+
+  {
+
+    "ICD10 Code": "C7230",
+
+    "ICD10 Description": "Malignant neoplasm of unspecified optic nerve",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -0.9216,
+
+    "Embedding 2": 3.5254,
+
+    "Embedding 3": 4.6856
+
+  },
+
+  {
+
+    "ICD10 Code": "C7231",
+
+    "ICD10 Description": "Malignant neoplasm of right optic nerve",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 1.2498,
+
+    "Embedding 2": 5.7933,
+
+    "Embedding 3": 4.57
+
+  },
+
+  {
+
+    "ICD10 Code": "C7232",
+
+    "ICD10 Description": "Malignant neoplasm of left optic nerve",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 1.4599,
+
+    "Embedding 2": 5.7847,
+
+    "Embedding 3": 4.545
+
+  },
+
+  {
+
+    "ICD10 Code": "C7240",
+
+    "ICD10 Description": "Malignant neoplasm of unspecified acoustic nerve",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -0.6977,
+
+    "Embedding 2": 3.4323,
+
+    "Embedding 3": 4.1186
+
+  },
+
+  {
+
+    "ICD10 Code": "C7241",
+
+    "ICD10 Description": "Malignant neoplasm of right acoustic nerve",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 1.3732,
+
+    "Embedding 2": 6.0882,
+
+    "Embedding 3": 3.8298
+
+  },
+
+  {
+
+    "ICD10 Code": "C7242",
+
+    "ICD10 Description": "Malignant neoplasm of left acoustic nerve",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 1.4879,
+
+    "Embedding 2": 6.0183,
+
+    "Embedding 3": 3.8068
+
+  },
+
+  {
+
+    "ICD10 Code": "C7250",
+
+    "ICD10 Description": "Malignant neoplasm of unspecified cranial nerve",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -0.3731,
+
+    "Embedding 2": 2.7174,
+
+    "Embedding 3": 4.856
+
+  },
+
+  {
+
+    "ICD10 Code": "C7259",
+
+    "ICD10 Description": "Malignant neoplasm of other cranial nerves",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -0.9465,
+
+    "Embedding 2": 2.3692,
+
+    "Embedding 3": 4.3896
+
+  },
+
+  {
+
+    "ICD10 Code": "C729",
+
+    "ICD10 Description": "Malignant neoplasm of central nervous system, unspecified",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -1.0783,
+
+    "Embedding 2": 2.7515,
+
+    "Embedding 3": 4.9582
+
+  },
+
+  {
+
+    "ICD10 Code": "C73",
+
+    "ICD10 Description": "Malignant neoplasm of thyroid gland",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -1.3904,
+
+    "Embedding 2": 3.8779,
+
+    "Embedding 3": 4.5775
+
+  },
+
+  {
+
+    "ICD10 Code": "C7400",
+
+    "ICD10 Description": "Malignant neoplasm of cortex of unspecified adrenal gland",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 0.592,
+
+    "Embedding 2": 5.3034,
+
+    "Embedding 3": 4.0743
+
+  },
+
+  {
+
+    "ICD10 Code": "C7401",
+
+    "ICD10 Description": "Malignant neoplasm of cortex of right adrenal gland",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 2.5979,
+
+    "Embedding 2": 6.4709,
+
+    "Embedding 3": 3.9444
+
+  },
+
+  {
+
+    "ICD10 Code": "C7402",
+
+    "ICD10 Description": "Malignant neoplasm of cortex of left adrenal gland",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 2.6971,
+
+    "Embedding 2": 6.535,
+
+    "Embedding 3": 3.8735
+
+  },
+
+  {
+
+    "ICD10 Code": "C7410",
+
+    "ICD10 Description": "Malignant neoplasm of medulla of unspecified adrenal gland",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 0.3704,
+
+    "Embedding 2": 5.2545,
+
+    "Embedding 3": 4.0314
+
+  },
+
+  {
+
+    "ICD10 Code": "C7411",
+
+    "ICD10 Description": "Malignant neoplasm of medulla of right adrenal gland",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 2.3569,
+
+    "Embedding 2": 6.4117,
+
+    "Embedding 3": 3.771
+
+  },
+
+  {
+
+    "ICD10 Code": "C7412",
+
+    "ICD10 Description": "Malignant neoplasm of medulla of left adrenal gland",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 2.3775,
+
+    "Embedding 2": 6.3714,
+
+    "Embedding 3": 3.7333
+
+  },
+
+  {
+
+    "ICD10 Code": "C7490",
+
+    "ICD10 Description": "Malignant neoplasm of unsp part of unspecified adrenal gland",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 0.6764,
+
+    "Embedding 2": 3.5218,
+
+    "Embedding 3": 4.9321
+
+  },
+
+  {
+
+    "ICD10 Code": "C7491",
+
+    "ICD10 Description": "Malignant neoplasm of unsp part of right adrenal gland",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 1.9661,
+
+    "Embedding 2": 4.5529,
+
+    "Embedding 3": 4.9175
+
+  },
+
+  {
+
+    "ICD10 Code": "C7492",
+
+    "ICD10 Description": "Malignant neoplasm of unspecified part of left adrenal gland",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 2.0285,
+
+    "Embedding 2": 4.5187,
+
+    "Embedding 3": 4.9124
+
+  },
+
+  {
+
+    "ICD10 Code": "C750",
+
+    "ICD10 Description": "Malignant neoplasm of parathyroid gland",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -0.9447,
+
+    "Embedding 2": 4.1165,
+
+    "Embedding 3": 4.5957
+
+  },
+
+  {
+
+    "ICD10 Code": "C751",
+
+    "ICD10 Description": "Malignant neoplasm of pituitary gland",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -0.9963,
+
+    "Embedding 2": 4.5921,
+
+    "Embedding 3": 4.8211
+
+  },
+
+  {
+
+    "ICD10 Code": "C752",
+
+    "ICD10 Description": "Malignant neoplasm of craniopharyngeal duct",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 0.2137,
+
+    "Embedding 2": 7.3479,
+
+    "Embedding 3": 3.5089
+
+  },
+
+  {
+
+    "ICD10 Code": "C753",
+
+    "ICD10 Description": "Malignant neoplasm of pineal gland",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -0.7527,
+
+    "Embedding 2": 5.4226,
+
+    "Embedding 3": 4.5325
+
+  },
+
+  {
+
+    "ICD10 Code": "C754",
+
+    "ICD10 Description": "Malignant neoplasm of carotid body",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -0.7339,
+
+    "Embedding 2": 4.4183,
+
+    "Embedding 3": 4.1162
+
+  },
+
+  {
+
+    "ICD10 Code": "C755",
+
+    "ICD10 Description": "Malignant neoplasm of aortic body and other paraganglia",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 0.1291,
+
+    "Embedding 2": 3.764,
+
+    "Embedding 3": 3.3896
+
+  },
+
+  {
+
+    "ICD10 Code": "C758",
+
+    "ICD10 Description": "Malignant neoplasm with pluriglandular involvement, unsp",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -1.4848,
+
+    "Embedding 2": 5.4058,
+
+    "Embedding 3": 4.8736
+
+  },
+
+  {
+
+    "ICD10 Code": "C759",
+
+    "ICD10 Description": "Malignant neoplasm of endocrine gland, unspecified",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -0.8361,
+
+    "Embedding 2": 3.5682,
+
+    "Embedding 3": 4.873
+
+  },
+
+  {
+
+    "ICD10 Code": "C7A00",
+
+    "ICD10 Description": "Malignant carcinoid tumor of unspecified site",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 0.7496,
+
+    "Embedding 2": 1.948,
+
+    "Embedding 3": 2.7017
+
+  },
+
+  {
+
+    "ICD10 Code": "C7A010",
+
+    "ICD10 Description": "Malignant carcinoid tumor of the duodenum",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -1.3138,
+
+    "Embedding 2": 3.8521,
+
+    "Embedding 3": 4.4095
+
+  },
+
+  {
+
+    "ICD10 Code": "C7A011",
+
+    "ICD10 Description": "Malignant carcinoid tumor of the jejunum",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -1.3709,
+
+    "Embedding 2": 3.4781,
+
+    "Embedding 3": 4.8259
+
+  },
+
+  {
+
+    "ICD10 Code": "C7A012",
+
+    "ICD10 Description": "Malignant carcinoid tumor of the ileum",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -0.7884,
+
+    "Embedding 2": 4.008,
+
+    "Embedding 3": 4.9815
+
+  },
+
+  {
+
+    "ICD10 Code": "C7A019",
+
+    "ICD10 Description": "Malignant carcinoid tumor of the sm int, unsp portion",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 0.0332,
+
+    "Embedding 2": 2.5538,
+
+    "Embedding 3": 4.811
+
+  },
+
+  {
+
+    "ICD10 Code": "C7A020",
+
+    "ICD10 Description": "Malignant carcinoid tumor of the appendix",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 2.28,
+
+    "Embedding 2": 4.7704,
+
+    "Embedding 3": 4.5922
+
+  },
+
+  {
+
+    "ICD10 Code": "C7A021",
+
+    "ICD10 Description": "Malignant carcinoid tumor of the cecum",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 2.3594,
+
+    "Embedding 2": 4.7498,
+
+    "Embedding 3": 4.4498
+
+  },
+
+  {
+
+    "ICD10 Code": "C7A022",
+
+    "ICD10 Description": "Malignant carcinoid tumor of the ascending colon",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -0.3398,
+
+    "Embedding 2": 2.359,
+
+    "Embedding 3": 5.025
+
+  },
+
+  {
+
+    "ICD10 Code": "C7A023",
+
+    "ICD10 Description": "Malignant carcinoid tumor of the transverse colon",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 1.8162,
+
+    "Embedding 2": 4.4901,
+
+    "Embedding 3": 4.6848
+
+  },
+
+  {
+
+    "ICD10 Code": "C7A024",
+
+    "ICD10 Description": "Malignant carcinoid tumor of the descending colon",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 1.9251,
+
+    "Embedding 2": 4.5758,
+
+    "Embedding 3": 4.5871
+
+  },
+
+  {
+
+    "ICD10 Code": "C7A025",
+
+    "ICD10 Description": "Malignant carcinoid tumor of the sigmoid colon",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -1.739,
+
+    "Embedding 2": 0.6234,
+
+    "Embedding 3": 3.2017
+
+  },
+
+  {
+
+    "ICD10 Code": "C7A026",
+
+    "ICD10 Description": "Malignant carcinoid tumor of the rectum",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -1.035,
+
+    "Embedding 2": -0.7605,
+
+    "Embedding 3": 2.4706
+
+  },
+
+  {
+
+    "ICD10 Code": "C7A029",
+
+    "ICD10 Description": "Malignant carcinoid tumor of the lg int, unsp portion",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -3.2648,
+
+    "Embedding 2": -1.2395,
+
+    "Embedding 3": 3.3266
+
+  },
+
+  {
+
+    "ICD10 Code": "C7A090",
+
+    "ICD10 Description": "Malignant carcinoid tumor of the bronchus and lung",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -2.3603,
+
+    "Embedding 2": 0.3239,
+
+    "Embedding 3": 3.7239
+
+  },
+
+  {
+
+    "ICD10 Code": "C7A091",
+
+    "ICD10 Description": "Malignant carcinoid tumor of the thymus",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -1.1779,
+
+    "Embedding 2": -2.4503,
+
+    "Embedding 3": 2.841
+
+  },
+
+  {
+
+    "ICD10 Code": "C7A092",
+
+    "ICD10 Description": "Malignant carcinoid tumor of the stomach",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -0.9602,
+
+    "Embedding 2": -1.4894,
+
+    "Embedding 3": 2.9613
+
+  },
+
+  {
+
+    "ICD10 Code": "C7A093",
+
+    "ICD10 Description": "Malignant carcinoid tumor of the kidney",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -2.5975,
+
+    "Embedding 2": 0.509,
+
+    "Embedding 3": 3.3936
+
+  },
+
+  {
+
+    "ICD10 Code": "C7A094",
+
+    "ICD10 Description": "Malignant carcinoid tumor of the foregut, unspecified",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -2.6483,
+
+    "Embedding 2": -1.2101,
+
+    "Embedding 3": 3.5432
+
+  },
+
+  {
+
+    "ICD10 Code": "C7A095",
+
+    "ICD10 Description": "Malignant carcinoid tumor of the midgut, unspecified",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -2.7889,
+
+    "Embedding 2": -1.3796,
+
+    "Embedding 3": 3.973
+
+  },
+
+  {
+
+    "ICD10 Code": "C7A096",
+
+    "ICD10 Description": "Malignant carcinoid tumor of the hindgut, unspecified",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -1.2659,
+
+    "Embedding 2": 0.2937,
+
+    "Embedding 3": 5.2375
+
+  },
+
+  {
+
+    "ICD10 Code": "C7A098",
+
+    "ICD10 Description": "Malignant carcinoid tumors of other sites",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": 0.2553,
+
+    "Embedding 2": 2.1238,
+
+    "Embedding 3": 5.3391
+
+  },
+
+  {
+
+    "ICD10 Code": "C782",
+
+    "ICD10 Description": "Secondary malignant neoplasm of pleura",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -1.9143,
+
+    "Embedding 2": -0.8667,
+
+    "Embedding 3": 5.2264
+
+  },
+
+  {
+
+    "ICD10 Code": "C7830",
+
+    "ICD10 Description": "Secondary malignant neoplasm of unsp respiratory organ",
+
+    "CCS Category": "Neoplasms",
+
+    "Embedding 1": -1.212,
+
+    "Embedding 2": 0.2669,
+
+    "Embedding 3": 5.489
+
+  },
+
+  {
+
+    "ICD10 Code": "Z9989",
+
+    "ICD10 Description": "Dependence on other enabling machines and devices",
+
+    "CCS Category": "Residual codes; unclassified; all E codes [259. and 260.]",
+
+    "Embedding 1": -6.9315,
+
+    "Embedding 2": 0.4746,
+
+    "Embedding 3": 1.0188
+
+  }
+
+]
+
+ 
+
+;
+
                 this.assignColors();
+
             }
+
+ 
 
             assignColors() {
+
                 const categories = [...new Set(this.data.map(item => item['CCS Category']))];
+
                 categories.forEach((category, index) => {
+
                     this.colors[category] = this.colorPalette[index % this.colorPalette.length];
+
                 });
+
                 this.createLegend(categories);
+
             }
+
+ 
 
             createLegend(categories) {
+
                 const legend = document.getElementById('legend');
+
                 const legendItems = document.getElementById('legend-items');
-                
+
+               
+
                 categories.forEach(category => {
+
                     const item = document.createElement('div');
+
                     item.className = 'legend-item';
+
                     item.innerHTML = `
+
                         <div class="legend-color" style="background-color: ${this.colors[category]}"></div>
+
                         <span>${category}</span>
+
                     `;
+
                     legendItems.appendChild(item);
+
                 });
-                
+
+               
+
                 legend.style.display = 'block';
+
             }
+
+ 
 
             setupScene() {
+
                 const container = document.getElementById('graph-container');
+
                 const width = container.clientWidth;
+
                 const height = container.clientHeight;
 
+ 
+
                 this.scene = new THREE.Scene();
+
                 this.scene.background = new THREE.Color(0x0f0f17);
 
+ 
+
                 this.camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+
                 this.camera.position.set(10, 12, 10);
+
                 this.camera.lookAt(0, 0, 0); // Look at the origin (axes intersection)
 
+ 
+
                 this.renderer = new THREE.WebGLRenderer({ antialias: true });
+
                 this.renderer.setSize(width, height);
+
                 this.renderer.setClearColor(0x0f0f17);
+
                 container.appendChild(this.renderer.domElement);
 
+ 
+
                 // Add ambient light
+
                 const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+
                 this.scene.add(ambientLight);
 
+ 
+
                 // Add directional light
+
                 const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+
                 directionalLight.position.set(10, 10, 5);
+
                 this.scene.add(directionalLight);
 
+ 
+
                 // Add grid
+
                 const gridHelper = new THREE.GridHelper(20, 20, 0x333333, 0x333333);
+
                 this.scene.add(gridHelper);
 
+ 
+
                 // Add axes helper
+
                 const axesHelper = new THREE.AxesHelper(5);
+
                 this.scene.add(axesHelper);
+
             }
+
+ 
 
             createPoints() {
+
                 // Create instanced geometry for better performance and cleaner look
+
                 const geometry = new THREE.CircleGeometry(0.04, 16);
-                
+
+               
+
                 this.data.forEach((item, index) => {
+
                     const material = new THREE.MeshBasicMaterial({
+
                         color: this.colors[item['CCS Category']],
+
                         transparent: true,
+
                         opacity: 0.4,
+
                         depthWrite: false // Helps with transparency sorting
+
                     });
-                    
+
+                   
+
                     const point = new THREE.Mesh(geometry, material);
+
                     point.position.set(
+
                         item['Embedding 1'],
+
                         item['Embedding 2'],
+
                         item['Embedding 3']
+
                     );
-                    
+
+                   
+
                     // Make points always face the camera
+
                     point.lookAt(this.camera.position);
-                    
+
+                   
+
                     point.userData = {
+
                         index: index,
+
                         code: item['ICD10 Code'],
+
                         description: item['ICD10 Description'],
+
                         category: item['CCS Category']
+
                     };
-                    
+
+                   
+
                     this.scene.add(point);
+
                     this.points.push(point);
+
                 });
+
             }
+
+ 
 
             setupControls() {
+
                 // Simple orbit controls implementation
+
                 let isDragging = false;
+
                 let previousMousePosition = { x: 0, y: 0 };
 
+ 
+
                 this.renderer.domElement.addEventListener('mousedown', (e) => {
+
                     isDragging = true;
+
                     previousMousePosition = { x: e.clientX, y: e.clientY };
+
                 });
 
+ 
+
                 this.renderer.domElement.addEventListener('mousemove', (e) => {
+
                     if (isDragging) {
+
                         const deltaMove = {
+
                             x: e.clientX - previousMousePosition.x,
+
                             y: e.clientY - previousMousePosition.y
+
                         };
 
+ 
+
                         const deltaRotationQuaternion = new THREE.Quaternion()
+
                             .setFromEuler(new THREE.Euler(
+
                                 deltaMove.y * 0.01,
+
                                 deltaMove.x * 0.01,
+
                                 0,
+
                                 'XYZ'
+
                             ));
 
+ 
+
                         this.camera.quaternion.multiplyQuaternions(deltaRotationQuaternion, this.camera.quaternion);
+
                         previousMousePosition = { x: e.clientX, y: e.clientY };
+
                     }
+
                 });
+
+ 
 
                 this.renderer.domElement.addEventListener('mouseup', () => {
+
                     isDragging = false;
+
                 });
+
+ 
 
                 // Zoom with mouse wheel
+
                 this.renderer.domElement.addEventListener('wheel', (e) => {
+
                     const zoomSpeed = 0.1;
+
                     const direction = e.deltaY > 0 ? 1 : -1;
+
                     this.camera.position.multiplyScalar(1 + direction * zoomSpeed);
+
                 });
+
             }
+
+ 
 
             setupEventListeners() {
+
                 // Mouse hover for tooltip
+
                 this.renderer.domElement.addEventListener('mousemove', (e) => {
+
                     const rect = this.renderer.domElement.getBoundingClientRect();
+
                     this.mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+
                     this.mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
 
+ 
+
                     this.raycaster.setFromCamera(this.mouse, this.camera);
+
                     const intersects = this.raycaster.intersectObjects(this.points);
 
+ 
+
                     if (intersects.length > 0) {
+
                         const point = intersects[0].object;
+
                         this.showTooltip(e, point.userData);
+
                     } else {
+
                         this.tooltip.style.display = 'none';
+
                     }
+
                 });
+
+ 
 
                 // Search functionality
+
                 const searchInput = document.getElementById('search-input');
+
                 const dropdown = document.getElementById('dropdown');
 
+ 
+
                 searchInput.addEventListener('input', (e) => {
+
                     const query = e.target.value.toLowerCase();
+
                     if (query.length > 0) {
-                        const matches = this.data.filter(item => 
+
+                        const matches = this.data.filter(item =>
+
                             item['ICD10 Code'].toLowerCase().includes(query)
+
                         ).slice(0, 10);
 
+ 
+
                         if (matches.length > 0) {
-                            dropdown.innerHTML = matches.map(item => 
+
+                            dropdown.innerHTML = matches.map(item =>
+
                                 `<div class="dropdown-item" data-code="${item['ICD10 Code']}">
+
                                     <strong>${item['ICD10 Code']}</strong> - ${item['ICD10 Description']}
+
                                 </div>`
+
                             ).join('');
+
                             dropdown.style.display = 'block';
+
                         } else {
+
                             dropdown.style.display = 'none';
+
                         }
+
                     } else {
+
                         dropdown.style.display = 'none';
+
                     }
+
                 });
+
+ 
 
                 dropdown.addEventListener('click', (e) => {
+
                     if (e.target.classList.contains('dropdown-item')) {
+
                         const code = e.target.getAttribute('data-code');
+
                         this.selectCode(code);
+
                         searchInput.value = code;
+
                         dropdown.style.display = 'none';
+
                     }
+
                 });
+
+ 
+
+                // Preset dropdown functionality
+
+                const presetDropdown = document.getElementById('preset-dropdown');
+
+                presetDropdown.addEventListener('change', (e) => {
+
+                    const selectedCode = e.target.value;
+
+                    if (selectedCode) {
+
+                        this.selectCode(selectedCode);
+
+                        searchInput.value = selectedCode;
+
+                    }
+
+                });
+
+ 
 
                 // Add mouse leave event to hide tooltip when leaving the canvas
+
                 this.renderer.domElement.addEventListener('mouseleave', () => {
+
                     this.tooltip.style.display = 'none';
+
                 });
+
+ 
 
                 // Close dropdown when clicking outside
+
                 document.addEventListener('click', (e) => {
+
                     if (!e.target.closest('.search-box')) {
+
                         dropdown.style.display = 'none';
+
                     }
+
                 });
+
                 window.addEventListener('resize', () => {
+
                     const container = document.getElementById('graph-container');
+
                     const width = container.clientWidth;
+
                     const height = container.clientHeight;
 
+ 
+
                     this.camera.aspect = width / height;
+
                     this.camera.updateProjectionMatrix();
+
                     this.renderer.setSize(width, height);
+
                 });
+
             }
+
+ 
 
             selectCode(code) {
+
                 const dataIndex = this.data.findIndex(item => item['ICD10 Code'] === code);
+
                 if (dataIndex !== -1) {
+
                     const selectedData = this.data[dataIndex];
+
                     const point = this.points[dataIndex];
-                    
+
+                   
+
                     // Reset previous selection
+
                     if (this.selectedPoint) {
+
                         this.selectedPoint.material.opacity = 0.4;
+
                         this.selectedPoint.scale.set(1, 1, 1);
+
                         // Remove any existing selection indicator
+
                         if (this.selectedPoint.children.length > 0) {
+
                             this.selectedPoint.remove(this.selectedPoint.children[0]);
+
                         }
+
                     }
-                    
+
+                   
+
                     this.selectedPoint = point;
-                    
+
+                   
+
                     // Enhanced highlighting
+
                     point.material.opacity = 1.0;
+
                     point.scale.set(2.5, 2.5, 2.5);
-                    
+
+                   
+
                     // Add pulsing ring indicator
+
                     const ringGeometry = new THREE.RingGeometry(0.08, 0.12, 16);
+
                     const ringMaterial = new THREE.MeshBasicMaterial({
+
                         color: 0xffffff,
+
                         transparent: true,
+
                         opacity: 0.8,
+
                         side: THREE.DoubleSide
+
                     });
+
                     const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+
                     point.add(ring);
-                    
+
+                   
+
                     // Animate the ring
+
                     let time = 0;
+
                     const animateRing = () => {
+
                         if (this.selectedPoint === point) {
+
                             time += 0.05;
+
                             ring.material.opacity = 0.3 + 0.5 * Math.sin(time);
+
                             ring.rotation.z += 0.02;
+
                             requestAnimationFrame(animateRing);
+
                         }
+
                     };
+
                     animateRing();
-                    
+
+                   
+
                     // Show selected info in panel
+
                     this.showSelectedInfo(selectedData);
+
                     this.showClosestPoints(dataIndex);
-                    
+
+                   
+
                     // Center camera on point
+
                     this.camera.lookAt(point.position);
+
                 }
+
             }
+
+ 
 
             showSelectedInfo(data) {
+
                 const selectedInfo = document.getElementById('selected-info');
+
                 const selectedCode = document.getElementById('selected-code');
+
                 const selectedDescription = document.getElementById('selected-description');
+
                 const selectedCategory = document.getElementById('selected-category');
-                
+
+               
+
                 selectedCode.textContent = data['ICD10 Code'];
+
                 selectedDescription.textContent = data['ICD10 Description'];
+
                 selectedCategory.textContent = `Category: ${data['CCS Category']}`;
-                
+
+               
+
                 selectedInfo.style.display = 'block';
+
             }
+
+ 
 
             showTooltipForPoint(point) {
+
                 const tooltip = document.getElementById('tooltip');
+
                 tooltip.innerHTML = `
+
                     <div class="tooltip-code">${point.userData.code}</div>
+
                     <div class="tooltip-description">${point.userData.description}</div>
+
                     <div class="tooltip-category">Category: ${point.userData.category}</div>
+
                 `;
+
                 tooltip.style.display = 'block';
+
                 tooltip.style.left = 'auto';
+
                 tooltip.style.right = '20px';
+
                 tooltip.style.top = 'auto';
+
                 tooltip.style.bottom = '20px';
+
                 tooltip.style.transform = 'none';
+
             }
+
+ 
 
             showClosestPoints(selectedIndex) {
+
                 const selectedItem = this.data[selectedIndex];
+
                 const distances = this.data.map((item, index) => {
+
                     if (index === selectedIndex) return { index, distance: Infinity };
-                    
+
+                   
+
                     const distance = Math.sqrt(
+
                         Math.pow(item['Embedding 1'] - selectedItem['Embedding 1'], 2) +
+
                         Math.pow(item['Embedding 2'] - selectedItem['Embedding 2'], 2) +
+
                         Math.pow(item['Embedding 3'] - selectedItem['Embedding 3'], 2)
+
                     );
-                    
+
+                   
+
                     return { index, distance };
+
                 }).sort((a, b) => a.distance - b.distance).slice(0, 3);
 
+ 
+
                 const closestSection = document.getElementById('closest-section');
+
                 const closestItems = document.getElementById('closest-items');
-                
+
+               
+
                 closestItems.innerHTML = distances.map(({ index, distance }) => {
+
                     const item = this.data[index];
+
                     return `
+
                         <div class="closest-item">
+
                             <div class="closest-distance">Distance: ${distance.toFixed(3)}</div>
+
                             <div class="closest-code">${item['ICD10 Code']}</div>
+
                             <div class="closest-description">${item['ICD10 Description']}</div>
+
                             <div class="closest-category">${item['CCS Category']}</div>
+
                         </div>
+
                     `;
+
                 }).join('');
-                
+
+               
+
                 closestSection.style.display = 'block';
+
             }
+
+ 
 
             showTooltip(event, userData) {
+
                 this.tooltip.innerHTML = `
+
                     <div class="tooltip-code">${userData.code}</div>
+
                     <div class="tooltip-description">${userData.description}</div>
+
                     <div class="tooltip-category">Category: ${userData.category}</div>
+
                 `;
+
                 this.tooltip.style.display = 'block';
+
                 this.tooltip.style.left = (event.clientX + 15) + 'px';
+
                 this.tooltip.style.top = (event.clientY - 10) + 'px';
+
             }
+
+ 
 
             hideTooltip() {
+
                 // Tooltip functionality removed - no longer needed
+
             }
+
+ 
 
             hideLoading() {
+
                 document.getElementById('loading').style.display = 'none';
+
             }
+
+ 
 
             showError(message) {
+
                 const loading = document.getElementById('loading');
+
                 loading.innerHTML = `<div style="color: #ff6b6b;">${message}</div>`;
+
             }
+
+ 
 
             animate() {
+
                 requestAnimationFrame(() => this.animate());
-                
+
+               
+
                 // Make points always face the camera for consistent appearance
+
                 this.points.forEach(point => {
+
                     point.lookAt(this.camera.position);
+
                 });
-                
+
+               
+
                 this.renderer.render(this.scene, this.camera);
+
             }
+
         }
 
+ 
+
         // Initialize the visualizer when the page loads
+
         window.addEventListener('load', () => {
+
             new ICD10Visualizer();
+
         });
+
     </script>
+
 </body>
+
 </html>
