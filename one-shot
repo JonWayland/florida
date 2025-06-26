@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Florida Blue Comedy Central | Corporate Humor Hub</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0066cc 0%, #004499 50%, #002266 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #0066cc;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo::before {
+            content: "🏥";
+            font-size: 32px;
+        }
+
+        .tagline {
+            color: #666;
+            font-style: italic;
+            font-size: 14px;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 80px 0;
+            color: white;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 255, 255, 0.2); }
+            to { text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(255, 255, 255, 0.4); }
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .jokes-section {
+            background: white;
+            padding: 80px 0;
+            position: relative;
+        }
+
+        .jokes-section::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 100px;
+            background: linear-gradient(180deg, #002266 0%, transparent 100%);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            color: #0066cc;
+            margin-bottom: 60px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .jokes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .joke-card {
+            background: linear-gradient(135deg, #f8f9ff 0%, #e6f0ff 100%);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 102, 204, 0.1);
+            border-left: 5px solid #0066cc;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .joke-card::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: rotate(45deg);
+            transition: all 0.6s;
+            opacity: 0;
+        }
+
+        .joke-card:hover::before {
+            animation: shimmer 1.5s ease-in-out;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); opacity: 0; }
+        }
+
+        .joke-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 102, 204, 0.2);
+        }
+
+        .joke-emoji {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .joke-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .joke-punchline {
+            font-weight: bold;
+            color: #0066cc;
+            font-size: 1.05rem;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 2px dotted #0066cc;
+        }
+
+        .interactive-section {
+            background: linear-gradient(135deg, #001144 0%, #003366 100%);
+            padding: 80px 0;
+            text-align: center;
+            color: white;
+        }
+
+        .joke-generator {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            margin: 40px auto;
+            max-width: 600px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #0066cc 0%, #004499 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 102, 204, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 102, 204, 0.4);
+            background: linear-gradient(135deg, #0077dd 0%, #0055aa 100%);
+        }
+
+        .random-joke {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            line-height: 1.5;
+        }
+
+        .stats-section {
+            background: white;
+            padding: 60px 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            text-align: center;
+        }
+
+        .stat-item {
+            padding: 30px;
+            background: linear-gradient(135deg, #f0f8ff 0%, #e0f0ff 100%);
+            border-radius: 15px;
+            border-top: 4px solid #0066cc;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #0066cc;
+            display: block;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 10px;
+            font-size: 1.1rem;
+        }
+
+        .footer {
+            background: #001122;
+            color: white;
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .footer p {
+            margin-bottom: 10px;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .jokes-grid { grid-template-columns: 1fr; }
+            .joke-card { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    Florida Blue Comedy Central
+                    <div class="tagline">Where Healthcare Meets Humor</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h1>Prescription for Laughter 💊</h1>
+            <p>Your daily dose of Florida Blue humor - no copay required!</p>
+        </div>
+    </section>
+
+    <section class="jokes-section">
+        <div class="container">
+            <h2 class="section-title">Premium Jokes Collection</h2>
+            <div class="jokes-grid">
+                <div class="joke-card" onclick="animateCard(this)">
+                    <span class="joke-emoji">🏖️</span>
+                    <div class="joke-text">Why did Florida Blue choose the Sunshine State?</div>
+                    <div class="joke-punchline">Because they wanted coverage that's always sunny-side up!</div>
+                </div>
+
+                <div class="joke-card" onclick="animateCard(this)">
+                    <span class="joke-emoji">💙</span>
+                    <div class="joke-text">What's Florida Blue's favorite type of music?</div>
+                    <div class="joke-punchline">The Blues! But only the good kind that makes you feel better!</div>
+                </div>
+
+                <div class="joke-card" onclick="animateCard(this)">
+                    <span class="joke-emoji">🐊</span>
+                    <div class="joke-text">Why don't Florida Blue employees worry about alligators?</div>
+                    <div class="joke-punchline">They've got them covered too - it's in the fine print!</div>
+                </div>
+
+                <div class="joke-card" onclick="animateCard(this)">
+                    <span class="joke-emoji">🏥</span>
+                    <div class="joke-text">What do you call a Florida Blue meeting about network expansion?</div>
+                    <div class="joke-punchline">A "blue-print" for success!</div>
+                </div>
+
+                <div class="joke-card" onclick="animateCard(this)">
+                    <span class="joke-emoji">☀️</span>
+                    <div class="joke-text">Why is Florida Blue like Florida weather?</div>
+                    <div class="joke-punchline">They both provide excellent coverage when you need it most!</div>
+                </div>
+
+                <div class="joke-card" onclick="animateCard(this)">
+                    <span class="joke-emoji">🎯</span>
+                    <div class="joke-text">What's Florida Blue's motto for customer service?</div>
+                    <div class="joke-punchline">"We'll make you feel blue... in the BEST way possible!"</div>
+                </div>
+
+                <div class="joke-card" onclick="animateCard(this)">
+                    <span class="joke-emoji">🚀</span>
+                    <div class="joke-text">Why did Florida Blue hire a rocket scientist?</div>
+                    <div class="joke-punchline">To make their claims process faster than the speed of light!</div>
+                </div>
+
+                <div class="joke-card" onclick="animateCard(this)">
+                    <span class="joke-emoji">🎪</span>
+                    <div class="joke-text">What do you call Florida Blue's annual company picnic?</div>
+                    <div class="joke-punchline">The greatest show on Earth... with really good health benefits!</div>
+                </div>
+
+                <div class="joke-card" onclick="animateCard(this)">
+                    <span class="joke-emoji">📱</span>
+                    <div class="joke-text">Why is the Florida Blue app so popular?</div>
+                    <div class="joke-punchline">It's the only blue screen that actually makes people happy!</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="interactive-section">
+        <div class="container">
+            <h2>Joke Generator Supreme</h2>
+            <p>Need more laughs? Our AI-powered humor engine has got you covered!</p>
+            <div class="joke-generator">
+                <button class="btn" onclick="generateRandomJoke()">Generate New Joke 🎲</button>
+                <div class="random-joke" id="randomJoke">
+                    Click the button above for your personalized Florida Blue joke!
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="stats-section">
+        <div class="container">
+            <h2 class="section-title">Laughter Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-number pulse">99.9%</span>
+                    <div class="stat-label">Joke Approval Rating</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number pulse">1M+</span>
+                    <div class="stat-label">Laughs Generated</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number pulse">24/7</span>
+                    <div class="stat-label">Humor Coverage</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number pulse">0</span>
+                    <div class="stat-label">Boring Meetings Since Launch</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>© 2025 Florida Blue Comedy Central - Making Healthcare Fun, One Joke at a Time</p>
+            <p>Side effects may include: uncontrollable laughter, improved mood, and enhanced team bonding</p>
+        </div>
+    </footer>
+
+    <script>
+        const randomJokes = [
+            "Why did the Florida Blue executive bring a ladder to the board meeting? To reach new heights in customer satisfaction!",
+            "What's the difference between Florida Blue and a magician? The magician makes things disappear, Florida Blue makes your worries disappear!",
+            "Why do Florida Blue employees make great comedians? They know how to deliver the perfect punchline... and coverage!",
+            "What did the doctor say about Florida Blue's network? 'It's so comprehensive, even I'm impressed!'",
+            "Why is Florida Blue like a good joke? The timing is everything, and the delivery is flawless!",
+            "What do you call a Florida Blue policy that covers everything? A miracle with a really good premium!",
+            "Why did the customer choose Florida Blue over other insurers? They heard the competition was just... not that funny!",
+            "What's Florida Blue's secret to success? They treat every customer like family... and everyone loves a good family joke!",
+            "Why don't Florida Blue employees need coffee? They get energized by helping people every day!",
+            "What did one Florida Blue office say to another? 'You've got great coverage... of the territory!'"
+        ];
+
+        function generateRandomJoke() {
+            const jokeElement = document.getElementById('randomJoke');
+            const randomIndex = Math.floor(Math.random() * randomJokes.length);
+            
+            // Add fade out effect
+            jokeElement.style.opacity = '0';
+            jokeElement.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                jokeElement.textContent = randomJokes[randomIndex];
+                jokeElement.style.opacity = '1';
+                jokeElement.style.transform = 'translateY(0)';
+            }, 300);
+        }
+
+        function animateCard(card) {
+            card.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                card.style.transform = 'scale(1.02)';
+                setTimeout(() => {
+                    card.style.transform = 'scale(1)';
+                }, 100);
+            }, 100);
+            
+            // Add a fun color flash
+            const originalBackground = card.style.background;
+            card.style.background = 'linear-gradient(135deg, #e6f7ff 0%, #b3e5ff 100%)';
+            setTimeout(() => {
+                card.style.background = originalBackground;
+            }, 300);
+        }
+
+        // Add some interactive elements on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate stat numbers on scroll
+            const observerOptions = {
+                threshold: 0.5,
+                rootMargin: '0px 0px -100px 0px'
+            };
+
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.animation = 'pulse 2s infinite';
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.stat-number').forEach(stat => {
+                observer.observe(stat);
+            });
+
+            // Add hover effects to joke cards
+            document.querySelectorAll('.joke-card').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.borderLeft = '5px solid #00aaff';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.borderLeft = '5px solid #0066cc';
+                });
+            });
+        });
+
+        // Add some sparkle effects
+        function createSparkle() {
+            const sparkle = document.createElement('div');
+            sparkle.innerHTML = '✨';
+            sparkle.style.position = 'fixed';
+            sparkle.style.left = Math.random() * window.innerWidth + 'px';
+            sparkle.style.top = Math.random() * window.innerHeight + 'px';
+            sparkle.style.fontSize = Math.random() * 20 + 10 + 'px';
+            sparkle.style.pointerEvents = 'none';
+            sparkle.style.zIndex = '1000';
+            sparkle.style.animation = 'sparkleFloat 3s linear forwards';
+            
+            document.body.appendChild(sparkle);
+            
+            setTimeout(() => {
+                sparkle.remove();
+            }, 3000);
+        }
+
+        // Add sparkle animation CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes sparkleFloat {
+                0% { opacity: 1; transform: translateY(0px) rotate(0deg); }
+                100% { opacity: 0; transform: translateY(-100px) rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Create sparkles occasionally
+        setInterval(createSparkle, 3000);
+    </script>
+</body>
+</html>
