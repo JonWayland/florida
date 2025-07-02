@@ -212,15 +212,42 @@
         }
 
         .person-emoji {
-            font-size: 1.2rem;
+            font-size: 1.6rem;
             animation: personPulse 3s ease-in-out infinite;
             transition: transform 0.3s ease;
-            color: white;
             filter: brightness(1.2) contrast(1.1);
+            display: inline-block;
+            transform: rotate(0deg);
+            font-weight: bold;
         }
 
         .person-emoji:hover {
             transform: scale(1.3);
+        }
+
+        /* Color gradient from white (Wellness) to red (End of Life) */
+        .bucket[data-distribution="35"] .person-emoji {
+            color: #ffffff; /* Wellness - White */
+        }
+
+        .bucket[data-distribution="25"] .person-emoji {
+            color: #ffcccc; /* Acute - Very light pink */
+        }
+
+        .bucket[data-distribution="20"] .person-emoji {
+            color: #ff9999; /* At Risk - Light pink */
+        }
+
+        .bucket[data-distribution="10"] .person-emoji {
+            color: #ff6666; /* Chronic - Medium pink */
+        }
+
+        .bucket[data-distribution="7"] .person-emoji {
+            color: #ff3333; /* Complex - Orange-red */
+        }
+
+        .bucket[data-distribution="3"] .person-emoji {
+            color: #ff0000; /* End of Life - Pure red */
         }
 
         /* Different animation delays for each person */
@@ -247,42 +274,9 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            opacity: 0;
-            transform: translateX(100px);
-            transition: all 0.5s ease;
-            pointer-events: none;
-        }
-
-        .output-container.visible {
             opacity: 1;
             transform: translateX(0);
             pointer-events: all;
-        }
-
-        .output-button {
-            position: absolute;
-            top: 2rem;
-            right: 2rem;
-            padding: 1rem 2rem;
-            background: linear-gradient(45deg, #00d4ff, #0099cc);
-            border: none;
-            border-radius: 25px;
-            color: white;
-            font-weight: 600;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            z-index: 100;
-            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
-        }
-
-        .output-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0, 212, 255, 0.4);
-        }
-
-        .output-button.active {
-            background: linear-gradient(45deg, #ff0096, #cc0077);
         }
 
         /* Volume metrics */
@@ -486,27 +480,26 @@
             display: none !important;
             position: fixed !important;
             z-index: 999999 !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 100vw !important;
-            height: 100vh !important;
-            background-color: rgba(0, 0, 0, 0.9) !important;
-            backdrop-filter: blur(10px) !important;
-            justify-content: center !important;
-            align-items: center !important;
+            left: 50% !important;
+            top: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            width: auto !important;
+            height: auto !important;
+            background-color: transparent !important;
+            backdrop-filter: none !important;
             pointer-events: auto !important;
         }
 
         .modal.show {
-            display: flex !important;
+            display: block !important;
         }
 
         .modal-content {
-            background: linear-gradient(135deg, rgba(26, 26, 46, 0.95), rgba(16, 33, 62, 0.95));
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.98), rgba(16, 33, 62, 0.98));
             padding: 2rem;
             border: 2px solid #00d4ff;
             border-radius: 20px;
-            width: 80%;
+            width: 80vw;
             max-width: 800px;
             max-height: 80vh;
             overflow-y: auto;
@@ -514,6 +507,7 @@
             animation: modalSlideIn 0.3s ease;
             position: relative;
             margin: 0;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
         }
 
         @keyframes modalSlideIn {
@@ -697,11 +691,11 @@
         }
 
         .stats-modal-content {
-            background: linear-gradient(135deg, rgba(26, 26, 46, 0.95), rgba(16, 33, 62, 0.95));
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.98), rgba(16, 33, 62, 0.98));
             padding: 2rem;
             border: 2px solid #00d4ff;
             border-radius: 20px;
-            width: 80%;
+            width: 80vw;
             max-width: 800px;
             max-height: 80vh;
             overflow-y: auto;
@@ -709,6 +703,7 @@
             animation: modalSlideIn 0.3s ease;
             position: relative;
             margin: 0;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
         }
 
         .stats-modal-header {
@@ -761,10 +756,6 @@
             }
             
             .output-container {
-                transform: translateY(100px);
-            }
-            
-            .output-container.visible {
                 transform: translateY(0);
             }
             
@@ -857,6 +848,68 @@
             50% { opacity: 1; transform: scale(1.1); }
             100% { opacity: 0; transform: scale(1); }
         }
+
+
+        /* Navigation Buttons */
+        .navigation-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            padding: 3rem 2rem 2rem 2rem;
+            background: transparent;
+        }
+
+        .nav-button {
+            pointer-events: auto;
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            padding: 1rem 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+            min-width: 120px;
+        }
+
+        .nav-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 212, 255, 0.4);
+        }
+
+        .back-button {
+            background: linear-gradient(45deg, #666666, #444444);
+            box-shadow: 0 5px 15px rgba(102, 102, 102, 0.3);
+        }
+
+        .back-button:hover {
+            box-shadow: 0 10px 20px rgba(102, 102, 102, 0.4);
+        }
+
+        .next-button {
+            background: linear-gradient(45deg, #00ff88, #00cc66);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+        }
+
+        .next-button:hover {
+            box-shadow: 0 10px 20px rgba(0, 255, 136, 0.4);
+        }
+
+        /* Responsive adjustments for navigation buttons */
+        @media (max-width: 768px) {
+            .navigation-buttons {
+                bottom: 1rem;
+                gap: 1rem;
+            }
+            
+            .nav-button {
+                font-size: 1rem;
+                padding: 0.8rem 1.5rem;
+                min-width: 100px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -868,11 +921,6 @@
         <h1 class="title">WiseWays</h1>
         <p class="subtitle">Intelligent Identification & Stratification</p>
     </div>
-
-    <!-- Output Button -->
-    <button class="output-button" id="outputButton" onclick="toggleOutput()">
-        🚀 Show Output
-    </button>
 
     <!-- County Tooltip -->
     <div class="county-tooltip" id="countyTooltip"></div>
@@ -954,52 +1002,52 @@
                 <div class="bucket" data-distribution="35">
                     <div class="bucket-title">Wellness</div>
                     <div class="bucket-people">
-                        <span class="person-emoji">👤</span>
-                        <span class="person-emoji">👤</span>
-                        <span class="person-emoji">👤</span>
-                        <span class="person-emoji">👤</span>
-                        <span class="person-emoji">👤</span>
-                        <span class="person-emoji">👤</span>
+                        <span class="person-emoji">&#x1F464;</span>
+                        <span class="person-emoji">&#x1F464;</span>
+                        <span class="person-emoji">&#x1F464;</span>
+                        <span class="person-emoji">&#x1F464;</span>
+                        <span class="person-emoji">&#x1F464;</span>
+                        <span class="person-emoji">&#x1F464;</span>
                     </div>
                 </div>
                 <div class="bucket" data-distribution="25">
                     <div class="bucket-title">Acute</div>
                     <div class="bucket-people">
-                        <span class="person-emoji">👤</span>
-                        <span class="person-emoji">👤</span>
-                        <span class="person-emoji">👤</span>
-                        <span class="person-emoji">👤</span>
-                        <span class="person-emoji">👤</span>
+                        <span class="person-emoji">&#x1F464;</span>
+                        <span class="person-emoji">&#x1F464;</span>
+                        <span class="person-emoji">&#x1F464;</span>
+                        <span class="person-emoji">&#x1F464;</span>
+                        <span class="person-emoji">&#x1F464;</span>
                     </div>
                 </div>
                 <div class="bucket" data-distribution="20">
                     <div class="bucket-title">At Risk</div>
                     <div class="bucket-people">
-                        <span class="person-emoji">👤</span>
-                        <span class="person-emoji">👤</span>
-                        <span class="person-emoji">👤</span>
-                        <span class="person-emoji">👤</span>
+                        <span class="person-emoji">&#x1F464;</span>
+                        <span class="person-emoji">&#x1F464;</span>
+                        <span class="person-emoji">&#x1F464;</span>
+                        <span class="person-emoji">&#x1F464;</span>
                     </div>
                 </div>
                 <div class="bucket" data-distribution="10">
                     <div class="bucket-title">Chronic</div>
                     <div class="bucket-people">
-                        <span class="person-emoji">👤</span>
-                        <span class="person-emoji">👤</span>
-                        <span class="person-emoji">👤</span>
+                        <span class="person-emoji">&#x1F464;</span>
+                        <span class="person-emoji">&#x1F464;</span>
+                        <span class="person-emoji">&#x1F464;</span>
                     </div>
                 </div>
                 <div class="bucket" data-distribution="7">
                     <div class="bucket-title">Complex</div>
                     <div class="bucket-people">
-                        <span class="person-emoji">👤</span>
-                        <span class="person-emoji">👤</span>
+                        <span class="person-emoji">&#x1F464;</span>
+                        <span class="person-emoji">&#x1F464;</span>
                     </div>
                 </div>
                 <div class="bucket" data-distribution="3">
                     <div class="bucket-title">End of Life</div>
                     <div class="bucket-people">
-                        <span class="person-emoji">👤</span>
+                        <span class="person-emoji">&#x1F464;</span>
                     </div>
                 </div>
             </div>
@@ -1079,6 +1127,7 @@
                     </div>
                 </div>
             </div>
+
 
     <script>
         // Global variables
@@ -1227,26 +1276,7 @@
             }
         }
         
-        function toggleOutput() {
-            const button = document.getElementById('outputButton');
-            const outputContainer = document.getElementById('outputContainer');
-            
-            outputVisible = !outputVisible;
-            
-            if (outputVisible) {
-                outputContainer.classList.add('visible');
-                button.textContent = '❌ Hide Output';
-                button.classList.add('active');
-                
-                // Load data and setup map
-                loadCountySummaryData();
-                loadFloridaMap();
-            } else {
-                outputContainer.classList.remove('visible');
-                button.textContent = '🚀 Show Output';
-                button.classList.remove('active');
-            }
-        }
+        // toggleOutput function removed - output is now always visible
 
         function showModelCategory(category) {
             console.log('Button clicked for category:', category); // Debug log
@@ -1714,20 +1744,36 @@
 
         // ===== EVENT LISTENERS =====
         
-        // Close modal when clicking outside of it
+        // Close modal when clicking anywhere except on the modal content
         window.addEventListener('click', function(event) {
             const modelModal = document.getElementById('modelModal');
             const statsModal = document.getElementById('programStatsModal');
             const funnelModal = document.getElementById('funnelModal');
             
-            if (event.target === modelModal) {
-                closeModal();
-            }
-            if (event.target === statsModal) {
-                closeProgramStatsModal();
-            }
-            if (event.target === funnelModal) {
-                closeFunnelModal();
+            // Check if any modal is currently visible
+            const isModelModalVisible = modelModal && modelModal.classList.contains('show');
+            const isStatsModalVisible = statsModal && statsModal.classList.contains('show');
+            const isFunnelModalVisible = funnelModal && funnelModal.classList.contains('show');
+            
+            // If a modal is visible and the click is not on modal content or buttons that open modals
+            if (isModelModalVisible || isStatsModalVisible || isFunnelModalVisible) {
+                const modalContent = event.target.closest('.modal-content');
+                const isClickOnModalButton = event.target.closest('.model-category-button') || 
+                                           event.target.closest('.funnel-stage') || 
+                                           event.target.closest('.volume-metrics-container');
+                
+                // Close modals if click is not on modal content or modal-opening buttons
+                if (!modalContent && !isClickOnModalButton) {
+                    if (isModelModalVisible) {
+                        closeModal();
+                    }
+                    if (isStatsModalVisible) {
+                        closeProgramStatsModal();
+                    }
+                    if (isFunnelModalVisible) {
+                        closeFunnelModal();
+                    }
+                }
             }
         });
 
@@ -1751,10 +1797,23 @@
             
             createParticles();
             
+            // Load data and setup map immediately
+            loadCountySummaryData();
+            loadFloridaMap();
+            
             console.log('WiseWays initialized successfully');
         });
 
         console.log('WiseWays Care Management Analytics - Redesigned version loaded successfully!');
     </script>
+        <!-- Navigation Buttons -->
+    <div class="navigation-buttons">
+        <button class="nav-button back-button" onclick="window.location.href='chronic-conditions.html'">
+            ← Back
+        </button>
+        <button class="nav-button next-button" onclick="window.location.href='poc-demo.html'">
+            Next →
+        </button>
+    </div>
 </body>
 </html>
