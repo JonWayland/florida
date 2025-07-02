@@ -364,7 +364,7 @@
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
             border: 1px solid rgba(0, 212, 255, 0.3);
             border-radius: 20px;
-            padding: 2rem;
+            padding: 1rem;
             backdrop-filter: blur(10px);
             flex: 1;
         }
@@ -372,14 +372,16 @@
         .florida-map {
             height: 100%;
             display: flex;
-            align-items: center;
-            justify-content: center;
+            align-items: stretch;
+            justify-content: stretch;
+            padding: 0;
+            margin: 0;
         }
 
         .florida-map svg {
             width: 100%;
-            height: 400px;
-            max-width: 600px;
+            height: 500px;
+            max-width: none;
             transform: scaleY(-1);
         }
 
