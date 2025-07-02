@@ -1,0 +1,1676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WiseWays - Care Management Analytics</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: white;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Animated background particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #00d4ff;
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) translateX(0px); opacity: 0.3; }
+            50% { transform: translateY(-20px) translateX(10px); opacity: 1; }
+        }
+
+        /* Header */
+        .header {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 2rem 2rem 1rem;
+            background: linear-gradient(45deg, rgba(0, 212, 255, 0.1), rgba(255, 0, 150, 0.1));
+        }
+
+        .title {
+            font-size: 3.5rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #00d4ff, #ff0096, #00ff88);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease-in-out infinite;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .subtitle {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            color: #00d4ff;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        /* Main container */
+        .main-container {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            min-height: calc(100vh - 200px);
+            padding: 2rem;
+            gap: 2rem;
+        }
+
+        /* Left side - Funnel diagram */
+        .funnel-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-top: 0rem;
+            margin-bottom: 2rem;
+        }
+
+        .funnel-diagram {
+            width: 100%;
+            max-width: 500px;
+            height: 600px;
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .funnel-stage {
+            position: absolute;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.3), rgba(0, 212, 255, 0.1));
+            border: 2px solid rgba(0, 212, 255, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .funnel-stage:hover {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.5), rgba(0, 212, 255, 0.2));
+            transform: scale(1.05);
+        }
+
+        .stage-1 { top: 0; left: 10%; width: 80%; height: 80px; }
+        .stage-2 { top: 100px; left: 15%; width: 70%; height: 70px; }
+        .stage-3 { top: 190px; left: 20%; width: 60%; height: 70px; }
+        .stage-4 { top: 280px; left: 25%; width: 50%; height: 70px; }
+        .stage-5 { top: 370px; left: 30%; width: 40%; height: 70px; }
+
+        .stratification-buckets {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 500px;
+            margin-top: -10rem;
+            gap: 0.2rem;
+        }
+
+        .bucket {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 15px;
+            padding: 1rem 0.5rem 0.5rem;
+            text-align: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            flex: 1;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: visible;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 0;
+        }
+
+        .bucket:hover {
+            border-color: #00d4ff;
+            transform: translateY(-5px);
+        }
+
+        .bucket-title {
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .bucket-people {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 4px;
+            justify-items: center;
+            margin-top: 0.5rem;
+            min-height: 40px;
+            align-items: center;
+        }
+
+        /* Special layout for buckets with odd numbers */
+        .bucket[data-distribution="25"] .bucket-people {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .bucket[data-distribution="25"] .bucket-people .person-emoji:nth-child(5) {
+            grid-column: 1 / -1;
+            justify-self: center;
+        }
+
+        .bucket[data-distribution="10"] .bucket-people {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .bucket[data-distribution="10"] .bucket-people .person-emoji:nth-child(3) {
+            grid-column: 1 / -1;
+            justify-self: center;
+        }
+
+        /* Remove the custom width override for End of Life */
+
+        .bucket[data-distribution="3"] .bucket-people {
+            grid-template-columns: 1fr;
+            justify-items: center;
+        }
+
+        .person-emoji {
+            font-size: 1.2rem;
+            animation: personPulse 3s ease-in-out infinite;
+            transition: transform 0.3s ease;
+            color: white;
+            filter: brightness(1.2) contrast(1.1);
+        }
+
+        .person-emoji:hover {
+            transform: scale(1.3);
+        }
+
+        /* Different animation delays for each person */
+        .person-emoji:nth-child(1) { animation-delay: 0s; }
+        .person-emoji:nth-child(2) { animation-delay: 0.5s; }
+        .person-emoji:nth-child(3) { animation-delay: 1s; }
+        .person-emoji:nth-child(4) { animation-delay: 1.5s; }
+        .person-emoji:nth-child(5) { animation-delay: 2s; }
+        .person-emoji:nth-child(6) { animation-delay: 2.5s; }
+
+        @keyframes personPulse {
+            0%, 100% { 
+                opacity: 0.8; 
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 1; 
+                transform: scale(1.1);
+            }
+        }
+
+        /* Right side - Output section */
+        .output-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            transform: translateX(100px);
+            transition: all 0.5s ease;
+            pointer-events: none;
+        }
+
+        .output-container.visible {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: all;
+        }
+
+        .output-button {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            padding: 1rem 2rem;
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 100;
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .output-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 212, 255, 0.4);
+        }
+
+        .output-button.active {
+            background: linear-gradient(45deg, #ff0096, #cc0077);
+        }
+
+        /* Volume metrics */
+        .volume-metrics-container {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .volume-metrics-container:hover {
+            border-color: #00d4ff;
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .volume-metrics-container::after {
+            content: '📊 Click for detailed program statistics';
+            position: absolute;
+            bottom: 0.5rem;
+            right: 1rem;
+            font-size: 0.8rem;
+            color: rgba(0, 212, 255, 0.8);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .volume-metrics-container:hover::after {
+            opacity: 1;
+        }
+
+        .volume-metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        .volume-metric-card {
+            text-align: center;
+            padding: 0;
+            background: none;
+            border: none;
+        }
+
+        .metric-icon {
+            display: none;
+        }
+
+        .metric-number {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-label {
+            font-size: 1rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-sublabel {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .target-volume { color: #00ff88; }
+        .referral-volume { color: #00d4ff; }
+        .engagement-volume { color: #ff0096; }
+
+        /* Florida map */
+        .county-map-container {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            flex: 1;
+        }
+
+        .florida-map {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .florida-map svg {
+            width: 100%;
+            height: 400px;
+            max-width: 600px;
+            transform: scaleY(-1);
+        }
+
+        .county-tooltip {
+            position: absolute;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(26, 26, 46, 0.95));
+            color: white;
+            padding: 1rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            pointer-events: none;
+            z-index: 1000;
+            border: 1px solid #00d4ff;
+            display: none;
+            min-width: 300px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+
+        .county-low { background: rgba(0, 212, 255, 0.3); }
+        .county-medium { background: rgba(0, 212, 255, 0.6); }
+        .county-high { background: rgba(255, 0, 150, 0.8); }
+        .county-critical { background: rgba(255, 69, 0, 0.9); }
+
+        /* Bottom buttons - repositioned below categories */
+        .bottom-buttons {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 1rem;
+            gap: 0.5rem;
+            max-width: 500px;
+            margin: 1rem auto 2rem;
+        }
+
+        .model-category-button {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border: 2px solid rgba(255, 69, 0, 0.5);
+            border-radius: 20px;
+            padding: 1rem 1.2rem;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            flex: 1;
+            min-width: 120px;
+            text-align: center;
+            height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: auto;
+            z-index: 10;
+        }
+
+        .model-category-button:hover {
+            border-color: #ff4500;
+            background: linear-gradient(135deg, rgba(255, 69, 0, 0.2), rgba(255, 69, 0, 0.1));
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 69, 0, 0.3);
+        }
+
+        /* Machine Learning Label */
+        .machine-learning-label {
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #00d4ff;
+            margin: 2rem 0 0.5rem 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        /* Modal for model details - MAXIMUM PRIORITY */
+        .modal {
+            display: none !important;
+            position: fixed !important;
+            z-index: 999999 !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            background-color: rgba(0, 0, 0, 0.9) !important;
+            backdrop-filter: blur(10px) !important;
+            justify-content: center !important;
+            align-items: center !important;
+            pointer-events: auto !important;
+        }
+
+        .modal.show {
+            display: flex !important;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.95), rgba(16, 33, 62, 0.95));
+            padding: 2rem;
+            border: 2px solid #00d4ff;
+            border-radius: 20px;
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            backdrop-filter: blur(20px);
+            animation: modalSlideIn 0.3s ease;
+            position: relative;
+            margin: 0;
+        }
+
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .close {
+            color: #00d4ff;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #ff0096;
+        }
+
+        .modal-title {
+            font-size: 2rem;
+            color: #00d4ff;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .model-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .model-item:hover {
+            border-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        .model-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #00ff88;
+            margin-bottom: 0.5rem;
+        }
+
+        .model-description {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.5;
+        }
+
+        /* Tooltip styling */
+        .tooltip-header {
+            font-weight: bold;
+            font-size: 1rem;
+            margin-bottom: 0.8rem;
+            color: #00d4ff;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+            padding-bottom: 0.5rem;
+        }
+
+        .tooltip-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .tooltip-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tooltip-label {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .tooltip-value {
+            color: white;
+            font-weight: 600;
+        }
+
+        .tooltip-priority {
+            margin-top: 0.8rem;
+            padding: 0.5rem;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .priority-low { background: rgba(0, 212, 255, 0.2); border: 1px solid rgba(0, 212, 255, 0.5); }
+        .priority-medium { background: rgba(255, 255, 0, 0.2); border: 1px solid rgba(255, 255, 0, 0.5); }
+        .priority-high { background: rgba(255, 0, 150, 0.2); border: 1px solid rgba(255, 0, 150, 0.5); }
+        .priority-critical { background: rgba(255, 69, 0, 0.2); border: 1px solid rgba(255, 69, 0, 0.5); }
+
+        /* Animation pausing - no longer needed but keeping for compatibility */
+        .funnel-diagram.paused .stick-figure {
+            animation-play-state: paused;
+        }
+
+        /* Program statistics table styles */
+        .program-stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .program-stats-table thead {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.3), rgba(0, 212, 255, 0.1));
+        }
+
+        .program-stats-table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #00d4ff;
+            border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .program-stats-table td {
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .program-stats-table tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        .program-stats-table tbody tr:hover {
+            background: rgba(0, 212, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .program-stats-table .program-name {
+            font-weight: 600;
+            color: #00ff88;
+        }
+
+        .program-stats-table .count-targeted {
+            color: #00ff88;
+            font-weight: 600;
+        }
+
+        .program-stats-table .count-referred {
+            color: #00d4ff;
+            font-weight: 600;
+        }
+
+        .program-stats-table .count-engaged {
+            color: #ff0096;
+            font-weight: 600;
+        }
+
+        .program-stats-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .program-stats-table .table-footer {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            font-weight: 700;
+            color: #00d4ff;
+            border-top: 2px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .stats-modal-content {
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.95), rgba(16, 33, 62, 0.95));
+            padding: 2rem;
+            border: 2px solid #00d4ff;
+            border-radius: 20px;
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            backdrop-filter: blur(20px);
+            animation: modalSlideIn 0.3s ease;
+            position: relative;
+            margin: 0;
+        }
+
+        .stats-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .stats-modal-title {
+            font-size: 2rem;
+            color: #00d4ff;
+            margin: 0;
+        }
+
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stats-summary-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stats-summary-number {
+            font-size: 1.8rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+        }
+
+        .stats-summary-label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Responsive design */
+        @media (max-width: 1200px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .output-container {
+                transform: translateY(100px);
+            }
+            
+            .output-container.visible {
+                transform: translateY(0);
+            }
+            
+            .bottom-buttons {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .model-category-button {
+                margin: 0.5rem;
+            }
+            
+            .volume-metrics-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .main-container {
+                padding: 1rem;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 2% auto;
+            }
+            
+            .bottom-buttons {
+                padding: 1rem;
+            }
+            
+            .model-category-button {
+                font-size: 0.9rem;
+                padding: 1rem 1.5rem;
+            }
+            
+            .volume-metrics-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .metric-number {
+                font-size: 2rem;
+            }
+            
+            .metric-label {
+                font-size: 0.9rem;
+            }
+            
+            .metric-sublabel {
+                font-size: 0.7rem;
+            }
+        }
+
+        /* Additional animation styles */
+        @keyframes bucketFlash {
+            0% { 
+                opacity: 0; 
+                transform: scale(0.8); 
+                background: rgba(0, 255, 136, 0.6);
+            }
+            30% { 
+                opacity: 1; 
+                transform: scale(1.1); 
+                background: rgba(0, 255, 136, 0.8);
+            }
+            70% {
+                opacity: 0.7;
+                transform: scale(1.05);
+                background: rgba(0, 255, 136, 0.4);
+            }
+            100% { 
+                opacity: 0; 
+                transform: scale(1); 
+                background: rgba(0, 255, 136, 0.1);
+            }
+        }
+        
+        @keyframes flash {
+            0% { opacity: 0; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.1); }
+            100% { opacity: 0; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated background particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Header -->
+    <div class="header">
+        <h1 class="title">WiseWays</h1>
+        <p class="subtitle">Intelligent Identification & Stratification</p>
+    </div>
+
+    <!-- Output Button -->
+    <button class="output-button" id="outputButton" onclick="toggleOutput()">
+        🚀 Show Output
+    </button>
+
+    <!-- County Tooltip -->
+    <div class="county-tooltip" id="countyTooltip"></div>
+
+    <!-- Modal for Model Categories - MOVED TO TOP LEVEL -->
+    <div id="modelModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 class="modal-title" id="modalTitle">Model Category</h2>
+            <div id="modalContent">
+                <!-- Model items will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Program Statistics - MOVED TO TOP LEVEL -->
+    <div id="programStatsModal" class="modal">
+        <div class="modal-content stats-modal-content">
+            <div class="stats-modal-header">
+                <h2 class="stats-modal-title">📊 Program Statistics</h2>
+                <span class="close" onclick="closeProgramStatsModal()">&times;</span>
+            </div>
+            
+            <div class="stats-summary">
+                <div class="stats-summary-card">
+                    <div class="stats-summary-number target-volume" id="summaryTargeted">0</div>
+                    <div class="stats-summary-label">Total Targeted</div>
+                </div>
+                <div class="stats-summary-card">
+                    <div class="stats-summary-number referral-volume" id="summaryReferred">0</div>
+                    <div class="stats-summary-label">Total Referred</div>
+                </div>
+                <div class="stats-summary-card">
+                    <div class="stats-summary-number engagement-volume" id="summaryEngaged">0</div>
+                    <div class="stats-summary-label">Total Engaged</div>
+                </div>
+            </div>
+            
+            <table class="program-stats-table">
+                <thead>
+                    <tr>
+                        <th>Program</th>
+                        <th>Targeted Count</th>
+                        <th>Referred Count</th>
+                        <th>Engaged Count</th>
+                    </tr>
+                </thead>
+                <tbody id="programStatsTableBody">
+                    <!-- Program data will be populated here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Left Side - Funnel Diagram -->
+        <div class="funnel-container">
+            <div class="funnel-diagram" id="funnelDiagram">
+                <div class="funnel-stage stage-1">Technology Backbone</div>
+                <div class="funnel-stage stage-2">Data Wrangling</div>
+                <div class="funnel-stage stage-3">Retrospective Models</div>
+                <div class="funnel-stage stage-4">Predictive Models</div>
+                <div class="funnel-stage stage-5">Clinical Insight</div>
+            </div>
+            
+            <div class="stratification-buckets">
+                <div class="bucket" data-distribution="35">
+                    <div class="bucket-title">Wellness</div>
+                    <div class="bucket-people">
+                        <span class="person-emoji">👤</span>
+                        <span class="person-emoji">👤</span>
+                        <span class="person-emoji">👤</span>
+                        <span class="person-emoji">👤</span>
+                        <span class="person-emoji">👤</span>
+                        <span class="person-emoji">👤</span>
+                    </div>
+                </div>
+                <div class="bucket" data-distribution="25">
+                    <div class="bucket-title">Acute</div>
+                    <div class="bucket-people">
+                        <span class="person-emoji">👤</span>
+                        <span class="person-emoji">👤</span>
+                        <span class="person-emoji">👤</span>
+                        <span class="person-emoji">👤</span>
+                        <span class="person-emoji">👤</span>
+                    </div>
+                </div>
+                <div class="bucket" data-distribution="20">
+                    <div class="bucket-title">At Risk</div>
+                    <div class="bucket-people">
+                        <span class="person-emoji">👤</span>
+                        <span class="person-emoji">👤</span>
+                        <span class="person-emoji">👤</span>
+                        <span class="person-emoji">👤</span>
+                    </div>
+                </div>
+                <div class="bucket" data-distribution="10">
+                    <div class="bucket-title">Chronic</div>
+                    <div class="bucket-people">
+                        <span class="person-emoji">👤</span>
+                        <span class="person-emoji">👤</span>
+                        <span class="person-emoji">👤</span>
+                    </div>
+                </div>
+                <div class="bucket" data-distribution="7">
+                    <div class="bucket-title">Complex</div>
+                    <div class="bucket-people">
+                        <span class="person-emoji">👤</span>
+                        <span class="person-emoji">👤</span>
+                    </div>
+                </div>
+                <div class="bucket" data-distribution="3">
+                    <div class="bucket-title">End of Life</div>
+                    <div class="bucket-people">
+                        <span class="person-emoji">👤</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Machine Learning Label - moved between categories and buttons -->
+            <div class="machine-learning-label">
+                Machine Learning
+            </div>
+            
+            <!-- Model Category Buttons - positioned directly below categories -->
+            <div class="bottom-buttons">
+                <button class="model-category-button" onclick="showModelCategory('utilization')">
+                    Utilization
+                </button>
+                <button class="model-category-button" onclick="showModelCategory('health')">
+                    Health
+                </button>
+                <button class="model-category-button" onclick="showModelCategory('behavior')">
+                    Behavioral
+                </button>
+                <button class="model-category-button" onclick="showModelCategory('process')">
+                    Process
+                </button>
+                <button class="model-category-button" onclick="showModelCategory('financial')">
+                    Financial
+                </button>
+            </div>
+        </div>
+
+        <!-- Right Side - Output Section -->
+        <div class="output-container" id="outputContainer">
+            <!-- Volume Metrics -->
+            <div class="volume-metrics-container fade-in" onclick="showProgramStatistics()">
+                <div class="volume-metrics-grid">
+                    <div class="volume-metric-card">
+                        <div class="metric-number target-volume" id="totalTargeted">Loading...</div>
+                        <div class="metric-label">Total Members Targeted</div>
+                        <div class="metric-sublabel">Identified for care management</div>
+                    </div>
+                    
+                    <div class="volume-metric-card">
+                        <div class="metric-number referral-volume" id="totalReferred">Loading...</div>
+                        <div class="metric-label">Total Members Referred</div>
+                        <div class="metric-sublabel">Referred to care management</div>
+                    </div>
+                    
+                    <div class="volume-metric-card">
+                        <div class="metric-number engagement-volume" id="totalEngaged">Loading...</div>
+                        <div class="metric-label">Total Members Engaged</div>
+                        <div class="metric-sublabel">Actively participating in programs</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Florida Map -->
+            <div class="county-map-container">
+                <h2 style="text-align: center; color: #00d4ff; margin-bottom: 1rem;">Florida Counties - Composite Priority Score</h2>
+                <div class="florida-map" id="floridaMapContainer">
+                    <div style="text-align: center; color: #00d4ff;">Loading Florida county map...</div>
+                </div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color county-low"></div>
+                        <span>Low Priority (0-25%)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color county-medium"></div>
+                        <span>Medium Priority (25-50%)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color county-high"></div>
+                        <span>High Priority (50-75%)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color county-critical"></div>
+                        <span>Critical Priority (75-100%)</span>
+                    </div>
+                </div>
+            </div>
+    <!-- Modal for Model Categories -->
+
+    <script>
+        // Global variables
+        let outputVisible = false;
+        let countyData = null;
+        let aggregatedMetrics = null;
+        
+        // Program statistics data
+        const programStatistics = [
+            { program: "Cardiac Care Management", targeted: 15234, referred: 3205, engaged: 1876 },
+            { program: "Diabetes Management", targeted: 23487, referred: 4932, engaged: 2834 },
+            { program: "Chronic Pain Management", targeted: 8743, referred: 1892, engaged: 1156 },
+            { program: "Mental Health Support", targeted: 12983, referred: 2749, engaged: 1623 },
+            { program: "Post-Surgical Care", targeted: 6874, referred: 1456, engaged: 892 },
+            { program: "Preventive Care Outreach", targeted: 45623, referred: 9832, engaged: 5743 },
+            { program: "Medication Adherence", targeted: 18934, referred: 4021, engaged: 2387 },
+            { program: "Emergency Care Follow-up", targeted: 11256, referred: 2387, engaged: 1432 },
+            { program: "Wellness Coaching", targeted: 32487, referred: 6834, engaged: 4092 },
+            { program: "Chronic Disease Education", targeted: 19834, referred: 4186, engaged: 2456 }
+        ];
+        
+        // Model categories data
+        const categoryInfo = {
+            utilization: {
+                title: 'Utilization Models',
+                models: [
+                    { name: 'PPER (Potentially Preventable ER Visits)', description: 'Model the likelihood of a member utilizing the ER within the next 3 months for a potentially preventable reason.' },
+                    { name: 'PAIP (Potentially Preventable Inpatient Admissions)', description: 'Predicting potentially avoidable hospitalizations per ambulatory care sensitive conditions.' },
+                    { name: 'Readmission Model', description: 'Predicting the risk of having a 30-day all-cause acute readmission for every member upon admission (authorization based).' },
+                    { name: 'Preference Sensitive Surgeries', description: 'Model the likelihood of a preference sensitive surgery authorization request.' },
+                    { name: 'Telehealth Optimization', description: 'Predict members who are most likely to utilize telehealth in the next 3 months.' },
+                    { name: 'PCP Utilization', description: 'Predict the likelihood of a member to utilize their PCP (for those who have not utilized in the past year).' }
+                ]
+            },
+            health: {
+                title: 'Health Outcome Models',
+                models: [
+                    { name: 'Mortality Risk Model', description: 'Predicts the likelihood of a member to expire in the next 9-15 months.' },
+                    { name: 'Kidney Transplant', description: 'Model the likelihood of a kidney transplant authorization request.' },
+                    { name: 'Liver Transplant', description: 'Model the likelihood of a liver transplant authorization request.' },
+                    { name: 'Heart Transplant', description: 'Model the likelihood of a heart transplant authorization request.' },
+                    { name: 'CAR-T', description: 'Model the likelihood of an authorization request for Chimeric Antigen Receptor T-cell (CAR-T) therapy.' },
+                    { name: 'Cardiovascular Disease', description: 'Predicting members who will have their first CDV diagnosis in the next 12 months.' },
+                    { name: 'Diabetes', description: 'Predict members who are going to be diagnosed with diabetes in the next 3 months.' },
+                    { name: 'Diabetic Specialist Care', description: 'Model the likelihood of a diabetic member needing to seek specialist care.' },
+                    { name: 'Opioid Overdose', description: 'Predicting members who are at the highest risk of overdosing on an opioid.' },
+                    { name: 'CA Risk', description: 'Commercial Analytics Risk Score.' },
+                    { name: 'New to Blue', description: 'A risk index for members who are brand new to Florida Blue.' },
+                    { name: 'Postpartum Depression', description: 'Predicting pregnant members who will experience postpartum depression.' }
+                ]
+            },
+            behavior: {
+                title: 'Behavioral Models',
+                models: [
+                    { name: 'High Value Retention', description: 'Identifying high needs contracts (BlueOptions ACA or Silver & Gold) with a high likelihood of attrition.' },
+                    { name: 'U65 Retention', description: 'Identifying all IU65 contracts with a high likelihood of attrition.' },
+                    { name: 'Plan Buy-Up', description: 'Identifying IU65 contracts with a high likelihood of purchasing a higher premium product during OEP.' },
+                    { name: 'Repeat Caller', description: 'Predicting the likelihood of someone being a repeat caller.' },
+                    { name: 'Renewal Attention', description: 'Identifying contracts that require additional attention rather than those who may passively renew during OEP.' },
+                    { name: 'Mid Group Lapse', description: 'Predicting the likelihood of a group to term coverage with Florida Blue' },
+                    { name: 'Engagement Model', description: 'Model the likelihood of engagement based on Care Management program.' },
+                    { name: 'Zip Code Clusters', description: 'Identifying groups of zip-codes, regardless of geographic positioning, that are socially similar to one another.' },
+                    { name: 'Sanitas Clusters', description: 'Classifying Sanitas members into groups that illustrate behavioral similarities.' }
+                ]
+            },
+            process: {
+                title: 'Process Models',
+                models: [
+                    { name: 'QaaS Audit', description: 'Predicting which manually adjudicated claims will have an error.' },
+                    { name: 'High Dollar Audit Model', description: 'Predicting which high dollar claims will have a defect.' },
+                    { name: 'Post-Pay Audit Model', description: 'Identifying claims with the highest likelihood of an error in the post-pay audit set of concepts.' },
+                    { name: 'Primary Language', description: 'Matching every member to their most likely primary language.' },
+                    { name: 'Spanish Language Preference', description: 'Model the likelihood of members Spanish language preference.' }
+                ]
+            },
+            financial: {
+                title: 'Financial Models',
+                models: [
+                    { name: 'PayCast', description: 'Predicting the next 12-month spend for every member.' },
+                    { name: 'Emerging Risk Detection', description: 'Model the likelihood of entering the 90th percentile in Cost for All of Commercial.' },
+                    { name: 'Emcara High Risk', description: 'Predicting members with a high median rolling quarterly allowed.' }
+                ]
+            }
+        };
+
+        // ===== MAIN FUNCTIONS =====
+        
+        function toggleOutput() {
+            const button = document.getElementById('outputButton');
+            const outputContainer = document.getElementById('outputContainer');
+            
+            outputVisible = !outputVisible;
+            
+            if (outputVisible) {
+                outputContainer.classList.add('visible');
+                button.textContent = '❌ Hide Output';
+                button.classList.add('active');
+                
+                // Load data and setup map
+                loadCountySummaryData();
+                loadFloridaMap();
+            } else {
+                outputContainer.classList.remove('visible');
+                button.textContent = '🚀 Show Output';
+                button.classList.remove('active');
+            }
+        }
+
+        function showModelCategory(category) {
+            console.log('Button clicked for category:', category); // Debug log
+            const modal = document.getElementById('modelModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalContent = document.getElementById('modalContent');
+            
+            console.log('Modal elements found:', {modal, modalTitle, modalContent}); // Debug log
+            
+            if (!modal || !modalTitle || !modalContent) {
+                console.error('Modal elements not found!');
+                return;
+            }
+            
+            const categoryData = categoryInfo[category];
+            console.log('Category data:', categoryData); // Debug log
+            
+            if (!categoryData) {
+                console.error('Category data not found for:', category);
+                return;
+            }
+            
+            modalTitle.textContent = categoryData.title;
+            
+            let contentHTML = '';
+            categoryData.models.forEach(model => {
+                contentHTML += `
+                    <div class="model-item">
+                        <div class="model-name">${model.name}</div>
+                        <div class="model-description">${model.description}</div>
+                    </div>
+                `;
+            });
+            
+            modalContent.innerHTML = contentHTML;
+            modal.style.display = 'flex';
+            modal.classList.add('show');
+            console.log('Modal should now be visible'); // Debug log
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('modelModal');
+            if (modal) {
+                modal.style.display = 'none';
+                modal.classList.remove('show');
+            }
+        }
+
+        function showProgramStatistics() {
+            const modal = document.getElementById('programStatsModal');
+            const tableBody = document.getElementById('programStatsTableBody');
+            
+            // Calculate totals
+            const totals = programStatistics.reduce((acc, program) => {
+                acc.targeted += program.targeted;
+                acc.referred += program.referred;
+                acc.engaged += program.engaged;
+                return acc;
+            }, { targeted: 0, referred: 0, engaged: 0 });
+            
+            // Update summary cards
+            document.getElementById('summaryTargeted').textContent = totals.targeted.toLocaleString();
+            document.getElementById('summaryReferred').textContent = totals.referred.toLocaleString();
+            document.getElementById('summaryEngaged').textContent = totals.engaged.toLocaleString();
+            
+            // Clear existing table content
+            tableBody.innerHTML = '';
+            
+            // Populate table with program data
+            programStatistics.forEach(program => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="program-name">${program.program}</td>
+                    <td class="count-targeted">${program.targeted.toLocaleString()}</td>
+                    <td class="count-referred">${program.referred.toLocaleString()}</td>
+                    <td class="count-engaged">${program.engaged.toLocaleString()}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            // Add totals row
+            const totalRow = document.createElement('tr');
+            totalRow.className = 'table-footer';
+            totalRow.innerHTML = `
+                <td><strong>TOTAL</strong></td>
+                <td><strong>${totals.targeted.toLocaleString()}</strong></td>
+                <td><strong>${totals.referred.toLocaleString()}</strong></td>
+                <td><strong>${totals.engaged.toLocaleString()}</strong></td>
+            `;
+            tableBody.appendChild(totalRow);
+            
+            modal.style.display = 'flex';
+            modal.classList.add('show');
+        }
+
+        function closeProgramStatsModal() {
+            const modal = document.getElementById('programStatsModal');
+            if (modal) {
+                modal.style.display = 'none';
+                modal.classList.remove('show');
+            }
+        }
+
+        // ===== DATA LOADING =====
+        
+        async function loadCountySummaryData() {
+            try {
+                // Demo county data
+                countyData = [
+                    { COUNTY: "PINELLAS", MBR_TARGETED: 22697, MBR_REFERRED: 4132, MBR_ENGAGED: 1295, ADI_COUNTY: 5.52, COUNTY_POP: 117624, TARGET_RATE: 193, REFERRED_RATE: 35, ENGAGED_RATE: 11 },
+                    { COUNTY: "LEE", MBR_TARGETED: 26979, MBR_REFERRED: 4973, MBR_ENGAGED: 1664, ADI_COUNTY: 5.45, COUNTY_POP: 113805, TARGET_RATE: 237, REFERRED_RATE: 44, ENGAGED_RATE: 15 },
+                    { COUNTY: "OSCEOLA", MBR_TARGETED: 7081, MBR_REFERRED: 1692, MBR_ENGAGED: 563, ADI_COUNTY: 5.45, COUNTY_POP: 37844, TARGET_RATE: 187, REFERRED_RATE: 45, ENGAGED_RATE: 15 },
+                    { COUNTY: "NASSAU", MBR_TARGETED: 4296, MBR_REFERRED: 719, MBR_ENGAGED: 268, ADI_COUNTY: 5.34, COUNTY_POP: 23102, TARGET_RATE: 186, REFERRED_RATE: 31, ENGAGED_RATE: 12 },
+                    { COUNTY: "HILLSBOROUGH", MBR_TARGETED: 27279, MBR_REFERRED: 5504, MBR_ENGAGED: 1553, ADI_COUNTY: 5.05, COUNTY_POP: 190966, TARGET_RATE: 143, REFERRED_RATE: 29, ENGAGED_RATE: 8 },
+                    { COUNTY: "FLAGLER", MBR_TARGETED: 2766, MBR_REFERRED: 434, MBR_ENGAGED: 157, ADI_COUNTY: 5.03, COUNTY_POP: 17018, TARGET_RATE: 163, REFERRED_RATE: 26, ENGAGED_RATE: 9 },
+                    { COUNTY: "MANATEE", MBR_TARGETED: 10878, MBR_REFERRED: 1864, MBR_ENGAGED: 607, ADI_COUNTY: 4.99, COUNTY_POP: 62438, TARGET_RATE: 174, REFERRED_RATE: 30, ENGAGED_RATE: 10 },
+                    { COUNTY: "ORANGE", MBR_TARGETED: 28104, MBR_REFERRED: 5998, MBR_ENGAGED: 1889, ADI_COUNTY: 4.9, COUNTY_POP: 190663, TARGET_RATE: 147, REFERRED_RATE: 31, ENGAGED_RATE: 10 },
+                    { COUNTY: "SEMINOLE", MBR_TARGETED: 8960, MBR_REFERRED: 1734, MBR_ENGAGED: 601, ADI_COUNTY: 4.59, COUNTY_POP: 47293, TARGET_RATE: 189, REFERRED_RATE: 37, ENGAGED_RATE: 13 },
+                    { COUNTY: "SARASOTA", MBR_TARGETED: 15323, MBR_REFERRED: 2437, MBR_ENGAGED: 793, ADI_COUNTY: 4.44, COUNTY_POP: 77915, TARGET_RATE: 197, REFERRED_RATE: 31, ENGAGED_RATE: 10 },
+                    { COUNTY: "MARTIN", MBR_TARGETED: 6083, MBR_REFERRED: 887, MBR_ENGAGED: 300, ADI_COUNTY: 4.39, COUNTY_POP: 31654, TARGET_RATE: 192, REFERRED_RATE: 28, ENGAGED_RATE: 9 },
+                    { COUNTY: "PALM BEACH", MBR_TARGETED: 36817, MBR_REFERRED: 6378, MBR_ENGAGED: 1888, ADI_COUNTY: 4.33, COUNTY_POP: 223834, TARGET_RATE: 164, REFERRED_RATE: 28, ENGAGED_RATE: 8 },
+                    { COUNTY: "BROWARD", MBR_TARGETED: 38598, MBR_REFERRED: 7368, MBR_ENGAGED: 2188, ADI_COUNTY: 4.28, COUNTY_POP: 291402, TARGET_RATE: 132, REFERRED_RATE: 25, ENGAGED_RATE: 8 },
+                    { COUNTY: "MIAMI-DADE", MBR_TARGETED: 39377, MBR_REFERRED: 7858, MBR_ENGAGED: 1924, ADI_COUNTY: 3.98, COUNTY_POP: 332209, TARGET_RATE: 119, REFERRED_RATE: 24, ENGAGED_RATE: 6 },
+                    { COUNTY: "ST. JOHNS", MBR_TARGETED: 12614, MBR_REFERRED: 1485, MBR_ENGAGED: 445, ADI_COUNTY: 3.62, COUNTY_POP: 78336, TARGET_RATE: 161, REFERRED_RATE: 19, ENGAGED_RATE: 6 },
+                    { COUNTY: "COLLIER", MBR_TARGETED: 13288, MBR_REFERRED: 2268, MBR_ENGAGED: 854, ADI_COUNTY: 3.4, COUNTY_POP: 69159, TARGET_RATE: 192, REFERRED_RATE: 33, ENGAGED_RATE: 12 },
+                    { COUNTY: "MONROE", MBR_TARGETED: 6447, MBR_REFERRED: 1051, MBR_ENGAGED: 382, ADI_COUNTY: 1.61, COUNTY_POP: 28802, TARGET_RATE: 224, REFERRED_RATE: 36, ENGAGED_RATE: 13 }
+                ];
+                
+                aggregatedMetrics = calculateAggregatedMetrics(countyData);
+                updateVolumeMetrics();
+                
+            } catch (error) {
+                console.error('Error loading county data:', error);
+            }
+        }
+
+        async function loadFloridaMap() {
+            try {
+                const svgContent = `<svg viewBox="-88.0151168 24.1973248 8.3639336 7.12754239999999" xmlns="http://www.w3.org/2000/svg" class="florida-counties-map">
+  <defs>
+    <style>
+      .county-path {
+        stroke: rgba(0, 212, 255, 0.5);
+        stroke-width: 0.01;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+      .county-path:hover {
+        stroke: #00d4ff;
+        stroke-width: 0.02;
+        filter: drop-shadow(0 0 0.1 rgba(0, 212, 255, 0.8));
+      }
+      .county-low { fill: rgba(0, 212, 255, 0.3); }
+      .county-medium { fill: rgba(0, 212, 255, 0.6); }
+      .county-high { fill: rgba(255, 0, 150, 0.8); }
+      .county-critical { fill: rgba(255, 69, 0, 0.9); }
+    </style>
+  </defs>
+  <path id="pinellas"
+        class="county-path county-medium"
+        d="M -82.7,29.8 L -82.6,29.8 L -82.5,29.9 L -82.5,30.0 L -82.6,30.1 L -82.7,30.0 Z"
+        data-county="Pinellas"
+        data-fips="12103"
+        data-target-rate="193"
+        data-adi="5.52"
+        data-referred-rate="35"
+        data-engaged-rate="11"
+        data-population="117624"
+        data-composite-score="42.5"
+        title="Pinellas County: Priority Score 42.5" />
+  <path id="lee"
+        class="county-path county-high"
+        d="M -81.8,26.4 L -81.6,26.5 L -81.5,26.7 L -81.7,26.8 L -81.9,26.6 Z"
+        data-county="Lee"
+        data-fips="12071"
+        data-target-rate="237"
+        data-adi="5.45"
+        data-referred-rate="44"
+        data-engaged-rate="15"
+        data-population="113805"
+        data-composite-score="58.3"
+        title="Lee County: Priority Score 58.3" />
+  <path id="osceola"
+        class="county-path county-medium"
+        d="M -81.2,28.1 L -81.0,28.2 L -80.9,28.4 L -81.1,28.5 L -81.3,28.3 Z"
+        data-county="Osceola"
+        data-fips="12097"
+        data-target-rate="187"
+        data-adi="5.45"
+        data-referred-rate="45"
+        data-engaged-rate="15"
+        data-population="37844"
+        data-composite-score="48.1"
+        title="Osceola County: Priority Score 48.1" />
+  <path id="miami-dade"
+        class="county-path county-low"
+        d="M -80.3,25.5 L -80.1,25.6 L -80.0,25.8 L -80.2,25.9 L -80.4,25.7 Z"
+        data-county="Miami-Dade"
+        data-fips="12086"
+        data-target-rate="119"
+        data-adi="3.98"
+        data-referred-rate="24"
+        data-engaged-rate="6"
+        data-population="332209"
+        data-composite-score="18.7"
+        title="Miami-Dade County: Priority Score 18.7" />
+  <path id="broward"
+        class="county-path county-low"
+        d="M -80.2,26.0 L -80.0,26.1 L -79.9,26.3 L -80.1,26.4 L -80.3,26.2 Z"
+        data-county="Broward"
+        data-fips="12011"
+        data-target-rate="132"
+        data-adi="4.28"
+        data-referred-rate="25"
+        data-engaged-rate="8"
+        data-population="291402"
+        data-composite-score="22.4"
+        title="Broward County: Priority Score 22.4" />
+  <path id="orange"
+        class="county-path county-medium"
+        d="M -81.4,28.5 L -81.2,28.6 L -81.1,28.8 L -81.3,28.9 L -81.5,28.7 Z"
+        data-county="Orange"
+        data-fips="12095"
+        data-target-rate="147"
+        data-adi="4.9"
+        data-referred-rate="31"
+        data-engaged-rate="10"
+        data-population="190663"
+        data-composite-score="35.2"
+        title="Orange County: Priority Score 35.2" />
+  <path id="hillsborough"
+        class="county-path county-medium"
+        d="M -82.5,27.9 L -82.3,28.0 L -82.2,28.2 L -82.4,28.3 L -82.6,28.1 Z"
+        data-county="Hillsborough"
+        data-fips="12057"
+        data-target-rate="143"
+        data-adi="5.05"
+        data-referred-rate="29"
+        data-engaged-rate="8"
+        data-population="190966"
+        data-composite-score="38.7"
+        title="Hillsborough County: Priority Score 38.7" />
+  <path id="palm-beach"
+        class="county-path county-low"
+        d="M -80.1,26.5 L -79.9,26.6 L -79.8,26.8 L -80.0,26.9 L -80.2,26.7 Z"
+        data-county="Palm Beach"
+        data-fips="12099"
+        data-target-rate="164"
+        data-adi="4.33"
+        data-referred-rate="28"
+        data-engaged-rate="8"
+        data-population="223834"
+        data-composite-score="28.9"
+        title="Palm Beach County: Priority Score 28.9" />
+</svg>`;
+              
+                document.getElementById('floridaMapContainer').innerHTML = svgContent;
+                setupMapInteractivity();
+                
+            } catch (error) {
+                console.error('Error loading Florida map:', error);
+                document.getElementById('floridaMapContainer').innerHTML = `
+                    <div style="text-align: center; color: #ff0096;">
+                        Error loading Florida map. Please check the console for details.
+                    </div>
+                `;
+            }
+        }
+
+        // ===== METRICS CALCULATION =====
+        
+        function calculateAggregatedMetrics(countyData) {
+            const totals = countyData.reduce((acc, county) => {
+                acc.totalTargeted += county.MBR_TARGETED || 0;
+                acc.totalReferred += county.MBR_REFERRED || 0;
+                acc.totalEngaged += county.MBR_ENGAGED || 0;
+                return acc;
+            }, {
+                totalTargeted: 0,
+                totalReferred: 0,
+                totalEngaged: 0
+            });
+
+            return totals;
+        }
+
+        function updateVolumeMetrics() {
+            if (!aggregatedMetrics) return;
+
+            const formatNumber = (num) => {
+                if (num >= 1000000) {
+                    return (num / 1000000).toFixed(1) + 'M';
+                } else if (num >= 1000) {
+                    return (num / 1000).toFixed(1) + 'K';
+                } else {
+                    return num.toLocaleString();
+                }
+            };
+
+            document.getElementById('totalTargeted').textContent = formatNumber(aggregatedMetrics.totalTargeted);
+            document.getElementById('totalReferred').textContent = formatNumber(aggregatedMetrics.totalReferred);
+            document.getElementById('totalEngaged').textContent = formatNumber(aggregatedMetrics.totalEngaged);
+        }
+
+        // ===== MAP INTERACTIVITY =====
+        
+        function setupMapInteractivity() {
+            const tooltip = document.getElementById('countyTooltip');
+            const countyPaths = document.querySelectorAll('.county-path');
+            
+            countyPaths.forEach((path, index) => {
+                setTimeout(() => {
+                    path.style.opacity = '1';
+                    path.style.transform = 'scale(1)';
+                }, index * 50);
+                
+                path.style.opacity = '0';
+                path.style.transform = 'scale(0.8)';
+                path.style.transformOrigin = 'center';
+                path.style.transition = 'all 0.5s ease';
+                
+                path.addEventListener('mouseenter', function(e) {
+                    const county = this.getAttribute('data-county');
+                    const targetRate = parseFloat(this.getAttribute('data-target-rate') || 0);
+                    const adiScore = parseFloat(this.getAttribute('data-adi') || 0);
+                    const referralRate = parseFloat(this.getAttribute('data-referred-rate') || 0);
+                    const engagementRate = parseFloat(this.getAttribute('data-engaged-rate') || 0);
+                    const population = parseInt(this.getAttribute('data-population') || 0);
+                    const compositeScore = parseFloat(this.getAttribute('data-composite-score') || 0);
+                    
+                    // Calculate conversion rates
+                    const referralConversionRate = targetRate > 0 ? ((referralRate / targetRate) * 100) : 0;
+                    const engagementConversionRate = referralRate > 0 ? ((engagementRate / referralRate) * 100) : 0;
+                    const overallConversionRate = targetRate > 0 ? ((engagementRate / targetRate) * 100) : 0;
+                    
+                    // Determine priority level and description
+                    let priorityClass = 'priority-low';
+                    let priorityText = '🟢 Low Priority';
+                    let priorityDescription = 'Lower need/activity level';
+                    
+                    if (compositeScore >= 75) {
+                        priorityClass = 'priority-critical';
+                        priorityText = '🔴 Critical Priority';
+                        priorityDescription = 'High deprivation + High targeting activity';
+                    } else if (compositeScore >= 50) {
+                        priorityClass = 'priority-high';
+                        priorityText = '🟠 High Priority';
+                        priorityDescription = 'Above average need and activity';
+                    } else if (compositeScore >= 25) {
+                        priorityClass = 'priority-medium';
+                        priorityText = '🟡 Medium Priority';
+                        priorityDescription = 'Moderate need and activity levels';
+                    }
+                    
+                    // Determine ADI risk level
+                    let adiRisk = 'Low Risk';
+                    if (adiScore >= 8) adiRisk = 'Very High Risk';
+                    else if (adiScore >= 6) adiRisk = 'High Risk';
+                    else if (adiScore >= 4) adiRisk = 'Moderate Risk';
+                    
+                    // Create enhanced tooltip content
+                    tooltip.innerHTML = `
+                        <div class="tooltip-header">
+                            ${county} County Analytics
+                        </div>
+                        
+                        <div class="tooltip-grid">
+                            <div class="tooltip-item">
+                                <span class="tooltip-label">Population:</span>
+                                <span class="tooltip-value">${population.toLocaleString()}</span>
+                            </div>
+                            <div class="tooltip-item">
+                                <span class="tooltip-label">ADI Score:</span>
+                                <span class="tooltip-value">${adiScore.toFixed(1)}/10 (${adiRisk})</span>
+                            </div>
+                            <div class="tooltip-item">
+                                <span class="tooltip-label">Target Rate:</span>
+                                <span class="tooltip-value">${targetRate.toFixed(1)} per 1K</span>
+                            </div>
+                            <div class="tooltip-item">
+                                <span class="tooltip-label">Referral Rate:</span>
+                                <span class="tooltip-value">${referralRate.toFixed(1)} per 1K</span>
+                            </div>
+                            <div class="tooltip-item">
+                                <span class="tooltip-label">Engagement Rate:</span>
+                                <span class="tooltip-value">${engagementRate.toFixed(1)} per 1K</span>
+                            </div>
+                            <div class="tooltip-item">
+                                <span class="tooltip-label">Priority Score:</span>
+                                <span class="tooltip-value">${compositeScore.toFixed(1)}/100</span>
+                            </div>
+                        </div>
+                        
+                        <div style="border-top: 1px solid rgba(255, 255, 255, 0.2); padding-top: 0.8rem; margin-top: 0.5rem;">
+                            <div style="font-size: 0.85rem; color: #ffffff; margin-bottom: 0.5rem;">
+                                <strong>Conversion Rates:</strong>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.8rem;">
+                                <div>Target → Referral: <span style="color: #00d4ff; font-weight: 600;">${referralConversionRate.toFixed(1)}%</span></div>
+                                <div>Referral → Engagement: <span style="color: #ff0096; font-weight: 600;">${engagementConversionRate.toFixed(1)}%</span></div>
+                                <div style="grid-column: 1 / -1;">Overall Conversion: <span style="color: #00ff88; font-weight: 600;">${overallConversionRate.toFixed(1)}%</span></div>
+                            </div>
+                        </div>
+                        
+                        <div class="tooltip-priority ${priorityClass}">
+                            ${priorityText}
+                            <div style="font-size: 0.8rem; margin-top: 0.3rem; opacity: 0.9;">
+                                ${priorityDescription}
+                            </div>
+                        </div>
+                    `;
+                    
+                    tooltip.style.display = 'block';
+                    
+                    // Position tooltip right above the mouse cursor
+                    const rect = this.getBoundingClientRect();
+                    const tooltipWidth = 350;
+                    const tooltipHeight = 280;
+                    
+                    // Start with mouse position
+                    let left = rect.left + rect.width / 2 - tooltipWidth / 2;
+                    let top = rect.top - tooltipHeight - 5; // Just 5px above the mouse area
+                    
+                    // Adjust if tooltip would go off screen
+                    if (left < 10) left = 10;
+                    if (left + tooltipWidth > window.innerWidth - 10) left = window.innerWidth - tooltipWidth - 10;
+                    if (top < 10) top = rect.bottom + 5; // If no room above, show below with minimal gap
+                    
+                    tooltip.style.left = left + 'px';
+                    tooltip.style.top = top + 'px';
+                });
+                
+                path.addEventListener('mouseleave', function() {
+                    tooltip.style.display = 'none';
+                });
+            });
+        }
+
+        // ===== FUNNEL ANIMATION - REMOVED =====
+        // Stick figure animation has been removed and replaced with static people emojis
+        
+        // ===== BUCKET INTERACTION - REMOVED =====
+        // All bucket animations and interactions have been removed for static display
+        function animateBucketFill(bucket) {
+            // This function is no longer used but kept for compatibility
+            // All bucket animations have been removed for static display
+        }
+
+        // ===== UTILITY FUNCTIONS =====
+        
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // ===== EVENT LISTENERS =====
+        
+        // Close modal when clicking outside of it
+        window.addEventListener('click', function(event) {
+            const modelModal = document.getElementById('modelModal');
+            const statsModal = document.getElementById('programStatsModal');
+            
+            if (event.target === modelModal) {
+                closeModal();
+            }
+            if (event.target === statsModal) {
+                closeProgramStatsModal();
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+                closeProgramStatsModal();
+            }
+            if (e.key === ' ') {
+                e.preventDefault();
+                toggleOutput();
+            }
+        });
+
+        // ===== INITIALIZATION =====
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('WiseWays Analytics - Redesigned - Initializing...');
+            
+            createParticles();
+            
+            console.log('WiseWays initialized successfully');
+        });
+
+        console.log('WiseWays Care Management Analytics - Redesigned version loaded successfully!');
+    </script>
+</body>
+</html>
