@@ -122,6 +122,7 @@
             backdrop-filter: blur(10px);
             border-radius: 10px;
             transition: all 0.3s ease;
+            cursor: pointer;
         }
 
         .funnel-stage:hover {
@@ -561,9 +562,16 @@
             margin-bottom: 0.5rem;
         }
 
-        .model-description {
+        .funnel-definition-content {
+            font-size: 1.1rem;
+            line-height: 1.6;
             color: rgba(255, 255, 255, 0.9);
-            line-height: 1.5;
+            padding: 1rem 0;
+        }
+
+        .funnel-definition-content strong {
+            color: #00ff88;
+            font-size: 1.2rem;
         }
 
         /* Tooltip styling */
@@ -919,16 +927,27 @@
         </div>
     </div>
 
+    <!-- Modal for Funnel Definitions -->
+    <div id="funnelModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeFunnelModal()">&times;</span>
+            <h2 class="modal-title" id="funnelModalTitle">Funnel Definition</h2>
+            <div id="funnelModalContent" class="funnel-definition-content">
+                <!-- Funnel definition will be populated here -->
+            </div>
+        </div>
+    </div>
+
     <!-- Main Container -->
     <div class="main-container">
         <!-- Left Side - Funnel Diagram -->
         <div class="funnel-container">
             <div class="funnel-diagram" id="funnelDiagram">
-                <div class="funnel-stage stage-1">Technology Backbone</div>
-                <div class="funnel-stage stage-2">Data Wrangling</div>
-                <div class="funnel-stage stage-3">Retrospective Models</div>
-                <div class="funnel-stage stage-4">Predictive Models</div>
-                <div class="funnel-stage stage-5">Clinical Insight</div>
+                <div class="funnel-stage stage-1" onclick="showFunnelDefinition('technology')">Technology Backbone</div>
+                <div class="funnel-stage stage-2" onclick="showFunnelDefinition('data')">Data Wrangling</div>
+                <div class="funnel-stage stage-3" onclick="showFunnelDefinition('retrospective')">Retrospective Models</div>
+                <div class="funnel-stage stage-4" onclick="showFunnelDefinition('predictive')">Predictive Models</div>
+                <div class="funnel-stage stage-5" onclick="showFunnelDefinition('clinical')">Clinical Insight</div>
             </div>
             
             <div class="stratification-buckets">
@@ -1060,13 +1079,36 @@
                     </div>
                 </div>
             </div>
-    <!-- Modal for Model Categories -->
 
     <script>
         // Global variables
         let outputVisible = false;
         let countyData = null;
         let aggregatedMetrics = null;
+        
+        // Funnel definitions data
+        const funnelDefinitions = {
+            technology: {
+                title: 'Technology Backbone',
+                definition: 'The foundational suite of standardized tools and technologies that enforces data-governance rules, operationalizes analytical outputs, and enables their seamless consumption across the enterprise.'
+            },
+            data: {
+                title: 'Data Wrangling',
+                definition: 'The disciplined ingestion, cleansing, integration, and structuring of medical, pharmacy, HIE/ADT, laboratory, SDoH, authorization, and survey data sources.'
+            },
+            retrospective: {
+                title: 'Retrospective Models',
+                definition: 'Analytic methods that mine historical data to generate retrospective risk scores and reveal prior patterns of high cost and utilization.'
+            },
+            predictive: {
+                title: 'Predictive Models',
+                definition: 'Advanced algorithms that forecast future health, utilization, behavioral, financial, and process outcomes from current and historical signals.'
+            },
+            clinical: {
+                title: 'Clinical Insight',
+                definition: 'Expert interpretation by licensed clinicians—physicians, pharmacists, nurses, and social workers—of relevant events, disease trajectories, drug interactions, and clinical pathways to inform care.'
+            }
+        };
         
         // Program statistics data
         const programStatistics = [
@@ -1147,6 +1189,43 @@
         };
 
         // ===== MAIN FUNCTIONS =====
+        
+        function showFunnelDefinition(stage) {
+            console.log('Funnel stage clicked:', stage); // Debug log
+            const modal = document.getElementById('funnelModal');
+            const modalTitle = document.getElementById('funnelModalTitle');
+            const modalContent = document.getElementById('funnelModalContent');
+            
+            console.log('Funnel modal elements:', {modal, modalTitle, modalContent}); // Debug log
+            
+            if (!modal || !modalTitle || !modalContent) {
+                console.error('Funnel modal elements not found!');
+                return;
+            }
+            
+            const stageData = funnelDefinitions[stage];
+            console.log('Stage data:', stageData); // Debug log
+            
+            if (!stageData) {
+                console.error('Funnel stage data not found for:', stage);
+                return;
+            }
+            
+            modalTitle.textContent = stageData.title;
+            modalContent.innerHTML = `<p><strong>${stageData.title}</strong> – ${stageData.definition}</p>`;
+            
+            modal.style.display = 'flex';
+            modal.classList.add('show');
+            console.log('Funnel modal should now be visible'); // Debug log
+        }
+
+        function closeFunnelModal() {
+            const modal = document.getElementById('funnelModal');
+            if (modal) {
+                modal.style.display = 'none';
+                modal.classList.remove('show');
+            }
+        }
         
         function toggleOutput() {
             const button = document.getElementById('outputButton');
@@ -1639,12 +1718,16 @@
         window.addEventListener('click', function(event) {
             const modelModal = document.getElementById('modelModal');
             const statsModal = document.getElementById('programStatsModal');
+            const funnelModal = document.getElementById('funnelModal');
             
             if (event.target === modelModal) {
                 closeModal();
             }
             if (event.target === statsModal) {
                 closeProgramStatsModal();
+            }
+            if (event.target === funnelModal) {
+                closeFunnelModal();
             }
         });
 
@@ -1653,6 +1736,7 @@
             if (e.key === 'Escape') {
                 closeModal();
                 closeProgramStatsModal();
+                closeFunnelModal();
             }
             if (e.key === ' ') {
                 e.preventDefault();
