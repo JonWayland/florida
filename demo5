@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Information Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: white;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Animated background particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #8a2be2;
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) translateX(0px); opacity: 0.3; }
+            50% { transform: translateY(-20px) translateX(10px); opacity: 1; }
+        }
+
+        /* Header */
+        .header {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 2rem 2rem 1rem;
+            background: linear-gradient(45deg, rgba(138, 43, 226, 0.1), rgba(255, 0, 150, 0.1));
+        }
+
+        .title {
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #8a2be2, #ff0096, #00d4ff);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease-in-out infinite;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 30px rgba(138, 43, 226, 0.5);
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #8a2be2;
+            font-weight: 300;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+        }
+
+        /* Main Layout */
+        .main-container {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            gap: 2rem;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            align-items: flex-start;
+        }
+
+        /* Input Controls */
+        .controls {
+            flex: 0 0 350px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            height: fit-content;
+        }
+
+        .controls-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #00d4ff;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .input-label {
+            font-size: 1.1rem;
+            color: #8a2be2;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .input-field, .select-field {
+            background: rgba(26, 26, 46, 0.9);
+            border: 2px solid rgba(138, 43, 226, 0.5);
+            border-radius: 15px;
+            padding: 1rem 1.5rem;
+            color: white;
+            font-size: 1rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus, .select-field:focus {
+            outline: none;
+            border-color: #8a2be2;
+            box-shadow: 0 0 20px rgba(138, 43, 226, 0.5);
+            background: rgba(26, 26, 46, 1);
+        }
+
+        .select-field option {
+            background: #1a1a2e;
+            color: white;
+            padding: 0.5rem;
+        }
+
+        .submit-button {
+            background: linear-gradient(45deg, #8a2be2, #ff0096);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            padding: 1rem 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(138, 43, 226, 0.3);
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(138, 43, 226, 0.4);
+        }
+
+        .submit-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* Demographics Section */
+        .demographics-section {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            display: none;
+        }
+
+        .demographics-section.show {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #00d4ff;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .demographics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .demo-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border-left: 4px solid #8a2be2;
+        }
+
+        .demo-label {
+            color: #ccc;
+            font-weight: 500;
+        }
+
+        .demo-value {
+            color: #00d4ff;
+            font-weight: 700;
+        }
+
+        /* Chat Container */
+        .chat-container {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            display: none;
+        }
+
+        .chat-container.show {
+            display: block;
+        }
+
+        .chat-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #00d4ff;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        /* Chat Thread */
+        .chat-thread {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chat-exchange {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            opacity: 0;
+            transition: all 0.5s ease;
+            transform: translateY(10px);
+        }
+
+        .chat-exchange.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Question Bubble */
+        .question-bubble {
+            align-self: flex-end;
+            background: linear-gradient(45deg, #8a2be2, #ff0096);
+            border-radius: 20px 20px 5px 20px;
+            padding: 1rem 1.5rem;
+            max-width: 70%;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 5px 15px rgba(138, 43, 226, 0.3);
+        }
+
+        /* Answer Bubble */
+        .answer-bubble {
+            align-self: flex-start;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(138, 43, 226, 0.1));
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 20px 20px 20px 5px;
+            padding: 1.5rem;
+            max-width: 85%;
+            backdrop-filter: blur(10px);
+        }
+
+        .answer-content {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #e0e0e0;
+        }
+
+        .answer-content ul {
+            padding-left: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .answer-content li {
+            margin-bottom: 0.8rem;
+            color: #ccc;
+        }
+
+        .answer-content strong {
+            color: #00d4ff;
+        }
+
+        /* Next Question Input */
+        .next-question-container {
+            display: none;
+        }
+
+        .next-question-container.show {
+            display: block;
+        }
+
+        .next-question-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .next-question-label {
+            font-size: 1.1rem;
+            color: #8a2be2;
+            font-weight: 600;
+        }
+
+        .next-question-select {
+            background: rgba(26, 26, 46, 0.9);
+            border: 2px solid rgba(138, 43, 226, 0.5);
+            border-radius: 15px;
+            padding: 1rem 1.5rem;
+            color: white;
+            font-size: 1rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .next-question-select:focus {
+            outline: none;
+            border-color: #8a2be2;
+            box-shadow: 0 0 20px rgba(138, 43, 226, 0.5);
+            background: rgba(26, 26, 46, 1);
+        }
+
+        .next-question-select option {
+            background: #1a1a2e;
+            color: white;
+            padding: 0.5rem;
+        }
+
+        .next-question-button {
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+            align-self: flex-start;
+        }
+
+        .next-question-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 212, 255, 0.4);
+        }
+
+        .next-question-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(138, 43, 226, 0.3);
+            border-top: 3px solid #8a2be2;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 1rem;
+            color: #8a2be2;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .main-container {
+                flex-direction: column;
+                gap: 2rem;
+            }
+
+            .controls {
+                flex: none;
+                max-width: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2rem;
+            }
+
+            .main-container {
+                padding: 1rem;
+            }
+
+            .controls {
+                padding: 1.5rem;
+            }
+
+            .demographics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .demographics-section, .chat-container {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background Particles -->
+    <div class="particles"></div>
+
+    <!-- Header -->
+    <div class="header">
+        <h1 class="title">Member Information Dashboard</h1>
+        <p class="subtitle">Intelligent Member Data Analysis & Insights</p>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Input Controls -->
+        <div class="controls">
+            <h2 class="controls-title">Member Lookup</h2>
+            
+            <div class="input-group">
+                <label class="input-label" for="memberSelect">Select Member ID:</label>
+                <select id="memberSelect" class="select-field">
+                    <option value="">Choose a member...</option>
+                    <option value="MBR001">MBR001 - Sarah Johnson</option>
+                    <option value="MBR002">MBR002 - Michael Chen</option>
+                    <option value="MBR003">MBR003 - Emily Rodriguez</option>
+                </select>
+            </div>
+
+            <div class="input-group" id="promptGroup" style="display: none;">
+                <label class="input-label" for="promptSelect">Initial Question:</label>
+                <select id="promptSelect" class="select-field">
+                    <option value="">Ask about this member...</option>
+                    <option value="Why was this member identified by WiseWays?">Why was this member identified by WiseWays?</option>
+                </select>
+            </div>
+
+            <button id="submitBtn" class="submit-button" style="display: none;">Ask Question</button>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Demographics Section -->
+            <div id="demographicsSection" class="demographics-section">
+                <h2 class="section-title">Member Demographics</h2>
+                <div class="demographics-grid" id="demographicsGrid">
+                </div>
+            </div>
+
+            <!-- Chat Interface -->
+            <div id="chatContainer" class="chat-container">
+                <h2 class="chat-title">WiseWays AI Analysis</h2>
+                <div id="chatThread" class="chat-thread">
+                </div>
+                <div id="nextQuestionContainer" class="next-question-container">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Member data
+        const memberData = {
+            "MBR001": {
+                demographics: {
+                    name: "Sarah Johnson",
+                    phone: "(555) 123-4567",
+                    email: "sarah.johnson@email.com",
+                    address: "123 Oak Street, Springfield, IL 62701",
+                    age: 34,
+                    gender: "Female",
+                    policyId: "POL-2024-001",
+                    effectiveDate: "2024-01-15",
+                    expirationDate: "2025-01-14"
+                },
+                identification: "Sarah was identified by WiseWays due to her family history of cardiovascular disease combined with current mild hypertension and sedentary lifestyle patterns. Our AI detected she's at moderate risk for cardiovascular complications and would benefit from proactive care management.",
+                followUpQuestions: [
+                    "What is Sarah's current health risk assessment?",
+                    "How can we optimize Sarah's insurance coverage?",
+                    "What preventive measures should Sarah prioritize?",
+                    "What lifestyle changes would benefit Sarah most?"
+                ],
+                responses: {
+                    "What is Sarah's current health risk assessment?": `
+                        <strong>Comprehensive Health Risk Assessment</strong><br><br>
+                        Sarah's risk profile shows <strong>moderate cardiovascular risk</strong> with several manageable factors:
+                        <ul>
+                            <li><strong>Primary Concerns:</strong> Family history of heart disease, mild hypertension, sedentary lifestyle</li>
+                            <li><strong>Protective Factors:</strong> Non-smoker, healthy BMI (23.2), regular medical check-ups</li>
+                            <li><strong>Current Management:</strong> 95% medication compliance for blood pressure control</li>
+                            <li><strong>Immediate Actions:</strong> Increase physical activity to 150 minutes/week, continue BP monitoring</li>
+                        </ul>
+                    `,
+                    "How can we optimize Sarah's insurance coverage?": `
+                        <strong>Coverage Optimization Strategy</strong><br><br>
+                        Sarah's current plan utilization is <strong>78% efficient</strong> with opportunities for enhancement:
+                        <ul>
+                            <li><strong>Cost Savings:</strong> $2,400 annually through in-network provider usage</li>
+                            <li><strong>Underutilized Benefits:</strong> Wellness programs, mental health services, preventive dental</li>
+                            <li><strong>Recommendation:</strong> Consider premium plan upgrade for enhanced specialist coverage</li>
+                            <li><strong>Projected Savings:</strong> $180/year through generic medication options</li>
+                        </ul>
+                    `,
+                    "What preventive measures should Sarah prioritize?": `
+                        <strong>Preventive Care Priorities</strong><br><br>
+                        Based on Sarah's risk profile, these preventive measures are <strong>highest priority</strong>:
+                        <ul>
+                            <li><strong>Cardiovascular Screening:</strong> Annual lipid panel, stress test consideration</li>
+                            <li><strong>Cancer Prevention:</strong> Up-to-date mammography and cervical screening</li>
+                            <li><strong>Lifestyle Medicine:</strong> Nutrition counseling for heart-healthy diet</li>
+                            <li><strong>Mental Health:</strong> Stress management resources and annual screening</li>
+                        </ul>
+                    `,
+                    "What lifestyle changes would benefit Sarah most?": `
+                        <strong>Priority Lifestyle Modifications</strong><br><br>
+                        The most impactful changes for Sarah's health profile:
+                        <ul>
+                            <li><strong>Exercise Goal:</strong> Progress from current activity to 150 minutes moderate exercise weekly</li>
+                            <li><strong>Dietary Focus:</strong> Reduce sodium intake to <2300mg daily, increase potassium-rich foods</li>
+                            <li><strong>Stress Management:</strong> Implement meditation or yoga practice 3x weekly</li>
+                            <li><strong>Sleep Optimization:</strong> Maintain 7-9 hours nightly with consistent schedule</li>
+                        </ul>
+                    `
+                }
+            },
+            "MBR002": {
+                demographics: {
+                    name: "Michael Chen",
+                    phone: "(555) 987-6543",
+                    email: "michael.chen@email.com",
+                    address: "456 Pine Avenue, Denver, CO 80202",
+                    age: 42,
+                    gender: "Male",
+                    policyId: "POL-2024-002",
+                    effectiveDate: "2024-03-01",
+                    expirationDate: "2025-02-28"
+                },
+                identification: "Michael was flagged by WiseWays for suboptimal diabetes management with an HbA1c of 7.2%. Our system identified opportunities to improve his glycemic control and prevent diabetic complications through enhanced care coordination.",
+                followUpQuestions: [
+                    "What is Michael's chronic disease management status?",
+                    "What preventive care does Michael need?",
+                    "How can we improve Michael's diabetes control?",
+                    "What complications should we monitor for Michael?"
+                ],
+                responses: {
+                    "What is Michael's chronic disease management status?": `
+                        <strong>Chronic Disease Management Overview</strong><br><br>
+                        Michael's diabetes management shows <strong>good progress with room for optimization</strong>:
+                        <ul>
+                            <li><strong>Current Control:</strong> HbA1c 7.2% (target <7.0%), improved from 8.1% last year</li>
+                            <li><strong>Medications:</strong> Metformin 500mg twice daily, excellent adherence</li>
+                            <li><strong>Lifestyle Success:</strong> Lost 15 pounds, exercises 3x weekly, follows low-carb diet</li>
+                            <li><strong>Monitoring:</strong> Daily glucose checks, quarterly lab work, annual eye exams</li>
+                        </ul>
+                    `,
+                    "What preventive care does Michael need?": `
+                        <strong>Preventive Care Schedule</strong><br><br>
+                        Michael's age and diabetes require <strong>comprehensive screening</strong>:
+                        <ul>
+                            <li><strong>Age-Appropriate:</strong> Colonoscopy due (age 42), prostate health discussion</li>
+                            <li><strong>Diabetes-Related:</strong> Annual diabetic eye exam, foot care assessment, kidney function</li>
+                            <li><strong>Cardiovascular:</strong> Lipid monitoring, blood pressure checks, consider stress testing</li>
+                            <li><strong>General Health:</strong> Skin cancer screening, bone density assessment</li>
+                        </ul>
+                    `,
+                    "How can we improve Michael's diabetes control?": `
+                        <strong>Diabetes Optimization Plan</strong><br><br>
+                        Strategies to achieve target HbA1c <strong>below 7.0%</strong>:
+                        <ul>
+                            <li><strong>Medication Review:</strong> Consider adding SGLT2 inhibitor or GLP-1 agonist</li>
+                            <li><strong>Nutrition Support:</strong> Intensive dietary counseling with registered dietitian</li>
+                            <li><strong>Exercise Enhancement:</strong> Add resistance training 2x weekly to current cardio routine</li>
+                            <li><strong>Technology:</strong> Continuous glucose monitoring for better pattern recognition</li>
+                        </ul>
+                    `,
+                    "What complications should we monitor for Michael?": `
+                        <strong>Complication Monitoring Protocol</strong><br><br>
+                        Key areas requiring <strong>vigilant surveillance</strong>:
+                        <ul>
+                            <li><strong>Eyes:</strong> Annual dilated retinal exam, early diabetic retinopathy screening</li>
+                            <li><strong>Kidneys:</strong> Quarterly microalbumin testing, annual eGFR monitoring</li>
+                            <li><strong>Feet:</strong> Monthly self-exams, annual podiatry evaluation, neuropathy screening</li>
+                            <li><strong>Cardiovascular:</strong> Annual EKG, lipid management, blood pressure optimization</li>
+                        </ul>
+                    `
+                }
+            },
+            "MBR003": {
+                demographics: {
+                    name: "Emily Rodriguez",
+                    phone: "(555) 456-7890",
+                    email: "emily.rodriguez@email.com",
+                    address: "789 Maple Drive, Austin, TX 78701",
+                    age: 28,
+                    gender: "Female",
+                    policyId: "POL-2024-003",
+                    effectiveDate: "2024-06-01",
+                    expirationDate: "2025-05-31"
+                },
+                identification: "Emily was identified by WiseWays as a high-engagement, low-risk member who could benefit from wellness optimization and preventive care enhancement. Our AI detected opportunities to maximize her excellent health trajectory.",
+                followUpQuestions: [
+                    "What wellness opportunities are available for Emily?",
+                    "How does Emily's career impact her health?",
+                    "What future health planning should Emily consider?",
+                    "How can we optimize Emily's preventive care?"
+                ],
+                responses: {
+                    "What wellness opportunities are available for Emily?": `
+                        <strong>Wellness Enhancement Opportunities</strong><br><br>
+                        Emily's excellent baseline health allows for <strong>optimization and future planning</strong>:
+                        <ul>
+                            <li><strong>Fitness Programs:</strong> Eligible for premium gym membership, personal training sessions</li>
+                            <li><strong>Nutrition Support:</strong> Sports nutrition counseling, meal planning services</li>
+                            <li><strong>Mental Wellness:</strong> Mindfulness apps, stress management workshops</li>
+                            <li><strong>Workplace Benefits:</strong> Standing desk reimbursement, healthy lunch programs</li>
+                        </ul>
+                    `,
+                    "How does Emily's career impact her health?": `
+                        <strong>Career-Health Integration Analysis</strong><br><br>
+                        Emily's desk job presents <strong>manageable occupational health considerations</strong>:
+                        <ul>
+                            <li><strong>Ergonomics:</strong> Workstation assessment shows good setup, standing desk recommended</li>
+                            <li><strong>Eye Health:</strong> Computer vision syndrome prevention, blue light filtering</li>
+                            <li><strong>Work-Life Balance:</strong> Excellent vacation usage, stress levels well-managed</li>
+                            <li><strong>Commute Benefits:</strong> Public transit + walking provides daily activity baseline</li>
+                        </ul>
+                    `,
+                    "What future health planning should Emily consider?": `
+                        <strong>Future Health Planning Strategy</strong><br><br>
+                        Proactive planning for Emily's <strong>long-term health optimization</strong>:
+                        <ul>
+                            <li><strong>Reproductive Health:</strong> Family planning counseling, genetic screening options</li>
+                            <li><strong>Career Longevity:</strong> Injury prevention strategies, ergonomic optimization</li>
+                            <li><strong>Financial Planning:</strong> HSA maximization, long-term care considerations</li>
+                            <li><strong>Health Technology:</strong> Wearable integration, health data tracking systems</li>
+                        </ul>
+                    `,
+                    "How can we optimize Emily's preventive care?": `
+                        <strong>Preventive Care Optimization</strong><br><br>
+                        Maximizing Emily's preventive care for <strong>sustained excellent health</strong>:
+                        <ul>
+                            <li><strong>Age-Appropriate Screening:</strong> Baseline mammography planning, cervical cancer screening current</li>
+                            <li><strong>Risk Assessment:</strong> Genetic counseling for family history evaluation</li>
+                            <li><strong>Immunizations:</strong> Travel health consultations, updated vaccination schedule</li>
+                            <li><strong>Lifestyle Medicine:</strong> Advanced nutritional testing, micronutrient optimization</li>
+                        </ul>
+                    `
+                }
+            }
+        };
+
+        // Global variables
+        let currentMember = null;
+
+        // Create animated particles
+        function createParticles() {
+            const particlesContainer = document.querySelector('.particles');
+            const particleCount = 50;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Display demographics
+        function displayDemographics(member) {
+            const demographics = memberData[member].demographics;
+            const demographicsGrid = document.getElementById('demographicsGrid');
+            demographicsGrid.innerHTML = '';
+
+            const demoItems = [
+                { label: 'Full Name', value: demographics.name },
+                { label: 'Phone Number', value: demographics.phone },
+                { label: 'Email Address', value: demographics.email },
+                { label: 'Address', value: demographics.address },
+                { label: 'Age', value: demographics.age + ' years' },
+                { label: 'Gender', value: demographics.gender },
+                { label: 'Policy ID', value: demographics.policyId },
+                { label: 'Effective Date', value: demographics.effectiveDate },
+                { label: 'Expiration Date', value: demographics.expirationDate }
+            ];
+
+            demoItems.forEach(item => {
+                const demoItem = document.createElement('div');
+                demoItem.className = 'demo-item';
+                demoItem.innerHTML = `
+                    <span class="demo-label">${item.label}:</span>
+                    <span class="demo-value">${item.value}</span>
+                `;
+                demographicsGrid.appendChild(demoItem);
+            });
+        }
+
+        // Add chat exchange
+        function addChatExchange(question, answer) {
+            const chatThread = document.getElementById('chatThread');
+            const exchange = document.createElement('div');
+            exchange.className = 'chat-exchange';
+            
+            exchange.innerHTML = `
+                <div class="question-bubble">${question}</div>
+                <div class="answer-bubble">
+                    <div class="answer-content">${answer}</div>
+                </div>
+            `;
+            
+            chatThread.appendChild(exchange);
+            
+            // Animate in
+            setTimeout(() => {
+                exchange.classList.add('show');
+            }, 100);
+            
+            // Scroll to bottom
+            setTimeout(() => {
+                exchange.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 600);
+        }
+
+        // Show next question options
+        function showNextQuestionOptions() {
+            if (!currentMember || !memberData[currentMember]) return;
+            
+            const followUpQuestions = memberData[currentMember].followUpQuestions;
+            const nextQuestionContainer = document.getElementById('nextQuestionContainer');
+            
+            nextQuestionContainer.innerHTML = `
+                <div class="next-question-group">
+                    <label class="next-question-label">Ask another question:</label>
+                    <select id="nextQuestionSelect" class="next-question-select">
+                        <option value="">Choose your next question...</option>
+                        ${followUpQuestions.map(q => `<option value="${q}">${q}</option>`).join('')}
+                    </select>
+                    <button id="nextQuestionBtn" class="next-question-button">Ask Question</button>
+                </div>
+            `;
+            
+            // Add event listener for next question
+            document.getElementById('nextQuestionBtn').addEventListener('click', () => {
+                const selectedQuestion = document.getElementById('nextQuestionSelect').value;
+                if (selectedQuestion) {
+                    askFollowUpQuestion(selectedQuestion);
+                }
+            });
+            
+            // Show the container
+            setTimeout(() => {
+                nextQuestionContainer.classList.add('show');
+                nextQuestionContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 500);
+        }
+
+        // Ask follow-up question
+        function askFollowUpQuestion(question) {
+            if (!currentMember || !memberData[currentMember].responses[question]) return;
+            
+            // Hide next question container temporarily
+            const nextQuestionContainer = document.getElementById('nextQuestionContainer');
+            nextQuestionContainer.classList.remove('show');
+            
+            // Add question bubble immediately
+            const chatThread = document.getElementById('chatThread');
+            const exchange = document.createElement('div');
+            exchange.className = 'chat-exchange';
+            
+            const questionBubble = document.createElement('div');
+            questionBubble.className = 'question-bubble';
+            questionBubble.textContent = question;
+            exchange.appendChild(questionBubble);
+            
+            // Add loading answer bubble
+            const answerBubble = document.createElement('div');
+            answerBubble.className = 'answer-bubble';
+            answerBubble.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text">WiseWays AI is thinking...</div>
+                </div>
+            `;
+            exchange.appendChild(answerBubble);
+            
+            chatThread.appendChild(exchange);
+            exchange.classList.add('show');
+            
+            // Scroll to show the new exchange
+            setTimeout(() => {
+                exchange.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+            
+            // Simulate AI processing time (3-5 seconds)
+            const processingTime = Math.random() * 2000 + 3000;
+            
+            setTimeout(() => {
+                // Replace loading with actual answer
+                const answer = memberData[currentMember].responses[question];
+                answerBubble.innerHTML = `<div class="answer-content">${answer}</div>`;
+                
+                // Show next question options again
+                setTimeout(() => {
+                    showNextQuestionOptions();
+                }, 1000);
+            }, processingTime);
+        }
+
+        // Event handlers
+        document.getElementById('memberSelect').addEventListener('change', function() {
+            const selectedMember = this.value;
+            
+            if (selectedMember && memberData[selectedMember]) {
+                currentMember = selectedMember;
+                
+                // Show demographics
+                displayDemographics(selectedMember);
+                document.getElementById('demographicsSection').classList.add('show');
+                
+                // Show prompt group and submit button
+                document.getElementById('promptGroup').style.display = 'block';
+                document.getElementById('submitBtn').style.display = 'block';
+                
+                // Clear previous chat
+                document.getElementById('chatThread').innerHTML = '';
+                document.getElementById('nextQuestionContainer').innerHTML = '';
+                document.getElementById('chatContainer').classList.remove('show');
+                
+            } else {
+                // Hide everything
+                currentMember = null;
+                document.getElementById('demographicsSection').classList.remove('show');
+                document.getElementById('promptGroup').style.display = 'none';
+                document.getElementById('submitBtn').style.display = 'none';
+                document.getElementById('chatContainer').classList.remove('show');
+            }
+        });
+
+        document.getElementById('submitBtn').addEventListener('click', function() {
+            const selectedMember = document.getElementById('memberSelect').value;
+            const selectedPrompt = document.getElementById('promptSelect').value;
+
+            if (!selectedMember || !selectedPrompt) {
+                alert('Please select both a member and a question.');
+                return;
+            }
+
+            // Show chat container
+            document.getElementById('chatContainer').classList.add('show');
+            
+            // Hide the initial controls
+            document.getElementById('promptGroup').style.display = 'none';
+            this.style.display = 'none';
+            
+            // Disable member select to prevent changes during conversation
+            document.getElementById('memberSelect').disabled = true;
+            
+            // Add question bubble immediately
+            const chatThread = document.getElementById('chatThread');
+            const exchange = document.createElement('div');
+            exchange.className = 'chat-exchange';
+            
+            const questionBubble = document.createElement('div');
+            questionBubble.className = 'question-bubble';
+            questionBubble.textContent = selectedPrompt;
+            exchange.appendChild(questionBubble);
+            
+            // Add loading answer bubble
+            const answerBubble = document.createElement('div');
+            answerBubble.className = 'answer-bubble';
+            answerBubble.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text">WiseWays AI is thinking...</div>
+                </div>
+            `;
+            exchange.appendChild(answerBubble);
+            
+            chatThread.appendChild(exchange);
+            exchange.classList.add('show');
+            
+            // Scroll to show the new exchange
+            setTimeout(() => {
+                exchange.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+
+            // Simulate AI processing time (3-5 seconds)
+            const processingTime = Math.random() * 2000 + 3000;
+
+            setTimeout(() => {
+                // Replace loading with actual answer
+                const answer = memberData[selectedMember].identification;
+                answerBubble.innerHTML = `<div class="answer-content">${answer}</div>`;
+                
+                // Show next question options
+                setTimeout(() => {
+                    showNextQuestionOptions();
+                }, 1000);
+            }, processingTime);
+        });
+
+        // Initialize
+        createParticles();
+    </script>
+</body>
+</html>
