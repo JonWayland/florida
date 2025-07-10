@@ -887,6 +887,9 @@
             const selectedMember = this.value;
             
             if (selectedMember && memberData[selectedMember]) {
+                // Check if we're switching members mid-conversation
+                const wasInConversation = document.getElementById('chatContainer').classList.contains('show');
+                
                 currentMember = selectedMember;
                 
                 // Reset asked questions when switching members
@@ -896,27 +899,55 @@
                 displayDemographics(selectedMember);
                 document.getElementById('demographicsSection').classList.add('show');
                 
-                // Show prompt group and submit button
+                // Reset all controls to initial state
                 document.getElementById('promptGroup').style.display = 'block';
                 document.getElementById('submitBtn').style.display = 'block';
                 
-                // Re-enable member select in case it was disabled
-                this.disabled = false;
+                // Reset prompt dropdown to default
+                document.getElementById('promptSelect').value = '';
                 
-                // Clear previous chat
+                // Clear previous chat and hide chat container
                 document.getElementById('chatThread').innerHTML = '';
                 document.getElementById('nextQuestionContainer').innerHTML = '';
                 document.getElementById('chatContainer').classList.remove('show');
                 
+                // Show a brief message if switching from an active conversation
+                if (wasInConversation) {
+                    const demographicsGrid = document.getElementById('demographicsGrid');
+                    const switchMessage = document.createElement('div');
+                    switchMessage.style.cssText = `
+                        background: rgba(0, 212, 255, 0.1);
+                        border: 1px solid rgba(0, 212, 255, 0.3);
+                        border-radius: 10px;
+                        padding: 1rem;
+                        margin-bottom: 1rem;
+                        text-align: center;
+                        color: #00d4ff;
+                        font-weight: 500;
+                    `;
+                    switchMessage.textContent = `Switched to ${memberData[selectedMember].demographics.name} - Previous conversation cleared`;
+                    demographicsGrid.parentNode.insertBefore(switchMessage, demographicsGrid);
+                    
+                    // Remove the message after 3 seconds
+                    setTimeout(() => {
+                        if (switchMessage.parentNode) {
+                            switchMessage.parentNode.removeChild(switchMessage);
+                        }
+                    }, 3000);
+                }
+                
             } else {
-                // Hide everything
+                // Hide everything when no member selected
                 currentMember = null;
                 askedQuestions = [];
                 document.getElementById('demographicsSection').classList.remove('show');
                 document.getElementById('promptGroup').style.display = 'none';
                 document.getElementById('submitBtn').style.display = 'none';
                 document.getElementById('chatContainer').classList.remove('show');
-                this.disabled = false;
+                
+                // Clear chat
+                document.getElementById('chatThread').innerHTML = '';
+                document.getElementById('nextQuestionContainer').innerHTML = '';
             }
         });
 
@@ -936,8 +967,8 @@
             document.getElementById('promptGroup').style.display = 'none';
             this.style.display = 'none';
             
-            // Disable member select to prevent changes during conversation
-            document.getElementById('memberSelect').disabled = true;
+            // Keep member select enabled so users can switch members
+            // document.getElementById('memberSelect').disabled = true; // REMOVED THIS LINE
             
             // Add question bubble immediately
             const chatThread = document.getElementById('chatThread');
