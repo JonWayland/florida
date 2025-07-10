@@ -706,6 +706,7 @@
 
         // Global variables
         let currentMember = null;
+        let askedQuestions = []; // Track questions that have been asked
 
         // Create animated particles
         function createParticles() {
@@ -783,6 +784,21 @@
             if (!currentMember || !memberData[currentMember]) return;
             
             const followUpQuestions = memberData[currentMember].followUpQuestions;
+            // Filter out questions that have already been asked
+            const availableQuestions = followUpQuestions.filter(q => !askedQuestions.includes(q));
+            
+            // If no questions left, don't show the container
+            if (availableQuestions.length === 0) {
+                const nextQuestionContainer = document.getElementById('nextQuestionContainer');
+                nextQuestionContainer.innerHTML = `
+                    <div style="text-align: center; color: #666; padding: 2rem; font-style: italic;">
+                        All available questions have been asked. Select a new member to start over.
+                    </div>
+                `;
+                nextQuestionContainer.classList.add('show');
+                return;
+            }
+            
             const nextQuestionContainer = document.getElementById('nextQuestionContainer');
             
             nextQuestionContainer.innerHTML = `
@@ -790,7 +806,7 @@
                     <label class="next-question-label">Ask another question:</label>
                     <select id="nextQuestionSelect" class="next-question-select">
                         <option value="">Choose your next question...</option>
-                        ${followUpQuestions.map(q => `<option value="${q}">${q}</option>`).join('')}
+                        ${availableQuestions.map(q => `<option value="${q}">${q}</option>`).join('')}
                     </select>
                     <button id="nextQuestionBtn" class="next-question-button">Ask Question</button>
                 </div>
@@ -814,6 +830,9 @@
         // Ask follow-up question
         function askFollowUpQuestion(question) {
             if (!currentMember || !memberData[currentMember].responses[question]) return;
+            
+            // Add the question to the asked questions list
+            askedQuestions.push(question);
             
             // Hide next question container temporarily
             const nextQuestionContainer = document.getElementById('nextQuestionContainer');
@@ -856,7 +875,7 @@
                 const answer = memberData[currentMember].responses[question];
                 answerBubble.innerHTML = `<div class="answer-content">${answer}</div>`;
                 
-                // Show next question options again
+                // Show next question options again (will now filter out asked questions)
                 setTimeout(() => {
                     showNextQuestionOptions();
                 }, 1000);
@@ -870,6 +889,9 @@
             if (selectedMember && memberData[selectedMember]) {
                 currentMember = selectedMember;
                 
+                // Reset asked questions when switching members
+                askedQuestions = [];
+                
                 // Show demographics
                 displayDemographics(selectedMember);
                 document.getElementById('demographicsSection').classList.add('show');
@@ -877,6 +899,9 @@
                 // Show prompt group and submit button
                 document.getElementById('promptGroup').style.display = 'block';
                 document.getElementById('submitBtn').style.display = 'block';
+                
+                // Re-enable member select in case it was disabled
+                this.disabled = false;
                 
                 // Clear previous chat
                 document.getElementById('chatThread').innerHTML = '';
@@ -886,10 +911,12 @@
             } else {
                 // Hide everything
                 currentMember = null;
+                askedQuestions = [];
                 document.getElementById('demographicsSection').classList.remove('show');
                 document.getElementById('promptGroup').style.display = 'none';
                 document.getElementById('submitBtn').style.display = 'none';
                 document.getElementById('chatContainer').classList.remove('show');
+                this.disabled = false;
             }
         });
 
