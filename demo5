@@ -528,7 +528,17 @@
                     effectiveDate: "2024-01-15",
                     expirationDate: "2025-01-14"
                 },
-                identification: "Sarah was identified by WiseWays due to her family history of cardiovascular disease combined with current mild hypertension and sedentary lifestyle patterns. Our AI detected she's at moderate risk for cardiovascular complications and would benefit from proactive care management.",
+                identification: `
+                    <strong>WiseWays Identification Summary for Sarah Johnson</strong><br><br>
+                    Sarah was flagged by our AI system for <strong>moderate cardiovascular risk</strong> requiring proactive intervention:
+                    <ul>
+                        <li><strong>Primary Risk Factors:</strong> Family history of cardiovascular disease combined with current mild hypertension</li>
+                        <li><strong>Lifestyle Concerns:</strong> Sedentary lifestyle patterns detected through health data analysis</li>
+                        <li><strong>Intervention Opportunity:</strong> High probability of preventing complications through targeted care management</li>
+                        <li><strong>Care Gaps:</strong> Underutilization of preventive cardiology services and lifestyle counseling</li>
+                        <li><strong>Predictive Modeling:</strong> 78% likelihood of improved outcomes with enhanced care coordination</li>
+                    </ul>
+                `,
                 followUpQuestions: [
                     "What is Sarah's current health risk assessment?",
                     "How can we optimize Sarah's insurance coverage?",
@@ -590,7 +600,17 @@
                     effectiveDate: "2024-03-01",
                     expirationDate: "2025-02-28"
                 },
-                identification: "Michael was flagged by WiseWays for suboptimal diabetes management with an HbA1c of 7.2%. Our system identified opportunities to improve his glycemic control and prevent diabetic complications through enhanced care coordination.",
+                identification: `
+                    <strong>WiseWays Identification Summary for Michael Chen</strong><br><br>
+                    Michael was flagged by our AI for <strong>suboptimal diabetes management</strong> with significant improvement potential:
+                    <ul>
+                        <li><strong>Glycemic Control Gap:</strong> HbA1c of 7.2% exceeds target goal of <7.0% for diabetes management</li>
+                        <li><strong>Complication Risk:</strong> Elevated risk for diabetic complications without enhanced intervention</li>
+                        <li><strong>Care Coordination Opportunity:</strong> Multiple specialists not optimally coordinated for comprehensive care</li>
+                        <li><strong>Technology Integration:</strong> Candidate for continuous glucose monitoring and diabetes technology</li>
+                        <li><strong>Prevention Focus:</strong> Age-appropriate screenings and diabetic complication monitoring gaps identified</li>
+                    </ul>
+                `,
                 followUpQuestions: [
                     "What is Michael's chronic disease management status?",
                     "What preventive care does Michael need?",
@@ -652,7 +672,17 @@
                     effectiveDate: "2024-06-01",
                     expirationDate: "2025-05-31"
                 },
-                identification: "Emily was identified by WiseWays as a high-engagement, low-risk member who could benefit from wellness optimization and preventive care enhancement. Our AI detected opportunities to maximize her excellent health trajectory.",
+                identification: `
+                    <strong>WiseWays Identification Summary for Emily Rodriguez</strong><br><br>
+                    Emily was identified as a <strong>high-value wellness optimization candidate</strong> with exceptional engagement potential:
+                    <ul>
+                        <li><strong>Health Excellence:</strong> Baseline excellent health profile with opportunity for sustained optimization</li>
+                        <li><strong>Engagement Potential:</strong> High likelihood of participating in wellness programs and preventive initiatives</li>
+                        <li><strong>Future Planning:</strong> Optimal candidate for long-term health trajectory planning and goal setting</li>
+                        <li><strong>Workplace Integration:</strong> Career health integration opportunities identified for sustained wellness</li>
+                        <li><strong>Preventive Investment:</strong> Early intervention can maximize lifelong health outcomes and reduce future costs</li>
+                    </ul>
+                `,
                 followUpQuestions: [
                     "What wellness opportunities are available for Emily?",
                     "How does Emily's career impact her health?",
