@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!--
+      This single‑file website has been crafted to look modern and professional while
+      retaining a sense of fun.  All HTML, CSS and JavaScript live inside this file to
+      make it easy to deploy.  Feel free to open it in your browser of choice.
+
+      The design loosely follows a corporate landing page layout with a fixed
+      navigation bar, a bold hero section, informational highlights and an
+      interactive jokes area.  Jokes about Florida Blue are light‑hearted and
+      friendly – they play on the company’s history, mission and the sunny
+      spirit of Florida without taking pot shots at anyone.
+    -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Florida Blue – Bringing the Blues with a Smile</title>
+    <!-- Load Google Fonts for crisp typography -->
+    <link
+      rel="preconnect"
+      href="https://fonts.googleapis.com"
+    />
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome for icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      integrity="sha512-p+1Gc7MdTuYmxDi5+wsvQMtVM7YKT49bbifXR5fIABkl0fLBhjiIfN63Zo8mojzPPRyPgmKGx6XG6KZ5P9j9ZA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <style>
+      /* Colour palette and typography variables */
+      :root {
+        --primary-color: #005eaa; /* deep Florida Blue */
+        --secondary-color: #00a0e2; /* lighter aqua */
+        --background-color: #f5f9ff; /* very light blue background */
+        --highlight-background: #ffffff; /* card backgrounds */
+        --text-color: #333333;
+        --heading-font: 'Montserrat', sans-serif;
+        --body-font: 'Open Sans', sans-serif;
+      }
+
+      /* Global resets */
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: var(--body-font);
+        background-color: var(--background-color);
+        color: var(--text-color);
+        line-height: 1.6;
+      }
+      a {
+        color: var(--primary-color);
+        text-decoration: none;
+      }
+      h1,
+      h2,
+      h3 {
+        font-family: var(--heading-font);
+        margin-top: 0;
+      }
+
+      /* Navigation bar */
+      header {
+        background: var(--highlight-background);
+        position: sticky;
+        top: 0;
+        width: 100%;
+        z-index: 999;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+      .nav-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 2rem;
+      }
+      .nav-logo {
+        font-family: var(--heading-font);
+        font-weight: 700;
+        font-size: 1.7rem;
+        color: var(--primary-color);
+      }
+      nav ul {
+        list-style: none;
+        display: flex;
+        margin: 0;
+        padding: 0;
+      }
+      nav li {
+        margin-left: 1.5rem;
+      }
+      nav a {
+        font-weight: 600;
+        transition: color 0.2s ease;
+      }
+      nav a:hover {
+        color: var(--secondary-color);
+      }
+      /* Mobile navigation toggle */
+      .menu-toggle {
+        display: none;
+        font-size: 1.5rem;
+        color: var(--primary-color);
+        cursor: pointer;
+      }
+      @media (max-width: 768px) {
+        nav ul {
+          position: absolute;
+          right: 1rem;
+          top: 64px;
+          background: var(--highlight-background);
+          border-radius: 4px;
+          flex-direction: column;
+          width: 200px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          display: none;
+        }
+        nav ul.open {
+          display: flex;
+        }
+        nav li {
+          margin: 0;
+          border-bottom: 1px solid #eeeeee;
+        }
+        nav li:last-child {
+          border-bottom: none;
+        }
+        nav a {
+          display: block;
+          padding: 0.75rem 1rem;
+        }
+        .menu-toggle {
+          display: block;
+        }
+      }
+
+      /* Hero section */
+      .hero {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: #ffffff;
+        min-height: 75vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 3rem 2rem;
+        position: relative;
+        overflow: hidden;
+      }
+      .hero::before,
+      .hero::after {
+        content: '';
+        position: absolute;
+        border-radius: 50%;
+        opacity: 0.1;
+        transform: translate(-50%, -50%);
+      }
+      /* decorative circles */
+      .hero::before {
+        width: 600px;
+        height: 600px;
+        background: rgba(255, 255, 255, 0.2);
+        top: -100px;
+        left: -100px;
+      }
+      .hero::after {
+        width: 800px;
+        height: 800px;
+        background: rgba(255, 255, 255, 0.15);
+        bottom: -200px;
+        right: -200px;
+      }
+      .hero h1 {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+      }
+      .hero p {
+        font-size: 1.2rem;
+        max-width: 700px;
+        margin-bottom: 2rem;
+      }
+      .hero .cta {
+        background: #ffffff;
+        color: var(--primary-color);
+        padding: 0.8rem 1.6rem;
+        border-radius: 4px;
+        font-weight: 700;
+        transition: all 0.25s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+      .hero .cta:hover {
+        background: var(--secondary-color);
+        color: #ffffff;
+      }
+
+      /* Shared section styling */
+      section {
+        padding: 4rem 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      section h2 {
+        font-size: 2.5rem;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+      }
+      section p {
+        font-size: 1rem;
+        color: #555555;
+      }
+
+      /* About section */
+      .about {
+        text-align: center;
+      }
+      .highlights {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 2rem;
+      }
+      .highlight {
+        background: var(--highlight-background);
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        padding: 2rem;
+        margin: 1rem;
+        flex: 1 1 260px;
+        max-width: 320px;
+        text-align: left;
+      }
+      .highlight i {
+        font-size: 2rem;
+        color: var(--secondary-color);
+        margin-bottom: 0.5rem;
+      }
+      .highlight h3 {
+        font-size: 1.3rem;
+        color: var(--primary-color);
+        margin-top: 0.5rem;
+      }
+      .highlight p {
+        font-size: 0.95rem;
+        color: #555555;
+        margin-bottom: 0;
+      }
+
+      /* Jokes section */
+      .jokes-section {
+        text-align: center;
+      }
+      #jokes-list {
+        margin-top: 2rem;
+      }
+      .joke-container {
+        background: var(--highlight-background);
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        padding: 1.5rem;
+        margin: 1rem auto;
+        max-width: 700px;
+        cursor: pointer;
+        transition: transform 0.25s ease;
+        position: relative;
+      }
+      .joke-container:hover {
+        transform: translateY(-5px);
+      }
+      .joke-container .setup {
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+        position: relative;
+        padding-right: 1.5rem;
+      }
+      .joke-container .setup::after {
+        /* We intentionally leave the pseudo-element empty; the rotation
+           animation has been removed because some browsers may not load
+           embedded Font Awesome glyphs inside pseudo-elements. */
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 0;
+      }
+      .joke-container.open .setup::after {
+        /* no rotation needed */
+      }
+      .joke-container .punchline {
+        display: none;
+        margin-top: 0.5rem;
+        color: #666666;
+      }
+      .joke-container.open .punchline {
+        display: block;
+      }
+
+      .random-joke {
+        margin-top: 3rem;
+      }
+      .random-joke button {
+        background: var(--primary-color);
+        color: #ffffff;
+        border: none;
+        padding: 0.8rem 1.6rem;
+        border-radius: 4px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.25s ease;
+      }
+      .random-joke button:hover {
+        background: var(--secondary-color);
+      }
+      .random-joke p {
+        margin-top: 1.5rem;
+        font-size: 1.2rem;
+        color: var(--primary-color);
+      }
+
+      /* Contact section */
+      .contact form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+      .contact input,
+      .contact textarea {
+        width: 100%;
+        padding: 0.8rem;
+        margin: 0.5rem 0;
+        border: 1px solid #cccccc;
+        border-radius: 4px;
+        font-size: 1rem;
+        font-family: var(--body-font);
+      }
+      .contact textarea {
+        min-height: 120px;
+        resize: vertical;
+      }
+      .contact button {
+        background: var(--primary-color);
+        color: #ffffff;
+        border: none;
+        padding: 0.8rem 1.6rem;
+        border-radius: 4px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 1rem;
+        transition: background 0.25s ease;
+      }
+      .contact button:hover {
+        background: var(--secondary-color);
+      }
+
+      /* Footer */
+      footer {
+        background: #033f63;
+        color: #ffffff;
+        text-align: center;
+        padding: 2rem 1rem;
+        font-size: 0.9rem;
+      }
+      footer a {
+        color: #a5d8f3;
+        text-decoration: underline;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation Bar -->
+    <header>
+      <div class="nav-container">
+        <div class="nav-logo">Florida Blue Fun</div>
+        <div class="menu-toggle" aria-label="Toggle navigation">
+          <i class="fas fa-bars"></i>
+        </div>
+        <nav>
+          <ul>
+            <li><a href="#hero">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#jokes">Jokes</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+      <h1>Bringing the Blues with a Smile</h1>
+      <p>
+        Welcome to a playful tribute to Florida Blue — the company that’s been
+        caring for Floridians since 1944 and still manages to keep things light.
+        Grab a seat, enjoy the puns and discover how we turn being “blue” into
+        something to smile about.
+      </p>
+      <a href="#jokes" class="cta">Start laughing</a>
+    </section>
+
+    <!-- About Section -->
+    <section class="about" id="about">
+      <h2>About Florida Blue (and why we're smiling)</h2>
+      <p>
+        Florida Blue is no ordinary health insurer. In fact, they’ve been
+        bringing high‑quality, affordable care to the Sunshine State since
+        1944, growing to serve nearly six million members along the way. They’re
+        the largest single‑state provider of individual marketplace plans in the
+        country and even opened customer centres in 2006 so members could speak
+        face to face. With a mission like that, it’s no wonder their colour is
+        blue—it goes with the ocean, the sky and the occasional punchline.
+      </p>
+      <div class="highlights">
+        <div class="highlight">
+          <i class="fas fa-users"></i>
+          <h3>Nearly 6 Million Members</h3>
+          <p>
+            That’s a lot of Floridians to keep smiling, but somehow Florida Blue
+            makes it look as easy as lounging on the beach.
+          </p>
+        </div>
+        <div class="highlight">
+          <i class="fas fa-chart-line"></i>
+          <h3>Largest Marketplace Provider</h3>
+          <p>
+            Go big or go home?  Florida Blue chose both.  They’re the largest
+            single‑state provider of individual marketplace plans in the U.S.
+            because covering Floridians is their favorite pastime.
+          </p>
+        </div>
+        <div class="highlight">
+          <i class="fas fa-handshake"></i>
+          <h3>Florida Blue Centers</h3>
+          <p>
+            In 2006 they opened centers so members could chat face to face.  They
+            perfected the handshake, now they’re working on the fist bump.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Jokes Section -->
+    <section class="jokes-section" id="jokes">
+      <h2>Laugh with us</h2>
+      <p>
+        Scroll through our collection of Florida Blue‑themed jokes below.
+        Click on any card to reveal the punchline — because sometimes even
+        insurance companies can tickle your funny bone.
+      </p>
+      <div id="jokes-list"></div>
+      <div class="random-joke">
+        <button id="random-btn" type="button">Tell me a random joke</button>
+        <p id="random-display"></p>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact" id="contact">
+      <h2>Get in touch</h2>
+      <p>
+        Have a question about our page or want to share your own joke?  Fill
+        in the form below and we'll respond faster than Florida weather
+        changes.
+      </p>
+      <form id="contact-form">
+        <input type="text" id="name" placeholder="Your name" required />
+        <input type="email" id="email" placeholder="Your email" required />
+        <textarea
+          id="message"
+          placeholder="Your message or favorite joke"
+          required
+        ></textarea>
+        <button type="submit">Send Message</button>
+      </form>
+      <p id="form-message"></p>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <p>
+        © 2025 Florida Blue Fun — this playful page is for entertainment
+        purposes only and is not an official Florida Blue website.
+      </p>
+      <p>
+        Historical facts are sourced from Florida Blue’s own public
+        communications.
+      </p>
+    </footer>
+
+    <!-- JavaScript for interactivity -->
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        // Toggle mobile navigation
+        const menuToggle = document.querySelector('.menu-toggle');
+        const navList = document.querySelector('nav ul');
+        menuToggle.addEventListener('click', () => {
+          navList.classList.toggle('open');
+        });
+
+        // Jokes data
+        const jokes = [
+          {
+            setup:
+              'Why did the Florida Blue member bring a life jacket to his policy meeting?',
+            punchline:
+              'Because he heard he was getting covered for “swimming in paperwork”!',
+          },
+          {
+            setup: 'Florida Blue has been serving Floridians since 1944.',
+            punchline:
+              "That's eighty years of figuring out how to make a phone call sound like a warm hug.",
+          },
+          {
+            setup: 'What’s blue but leaves everyone smiling?',
+            punchline:
+              "Florida Blue’s member benefits—and maybe a Smurf on vacation.",
+          },
+          {
+            setup: 'Why does Florida Blue love sunny days?',
+            punchline:
+              'Because even their plans like to catch some rays!',
+          },
+          {
+            setup: 'What’s Florida Blue’s favorite workout?',
+            punchline:
+              "Crunching numbers. But they'll also cover your gym membership for actual crunches.",
+          },
+          {
+            setup: 'Why did the health insurance card enroll in yoga?',
+            punchline: 'To learn how to be flexible in all the right places.',
+          },
+          {
+            setup: 'Florida Blue’s call center is so friendly,',
+            punchline:
+              'the hold music is just someone reminding you to drink water.',
+          },
+          {
+            setup: 'Why did the policy cross the road?',
+            punchline:
+              'To get to the Florida Blue Center opened in 2006—where it could talk face to face.',
+          },
+          {
+            setup: 'What do you call Florida Blue’s online portal?',
+            punchline:
+              'Your health’s BFF. It even understands when you type, “Why does my knee make that noise?”.',
+          },
+          {
+            setup: 'How does Florida Blue stay so calm during hurricane season?',
+            punchline:
+              'Decades of practice handling storms of paperwork.',
+          },
+          {
+            setup: 'Why doesn’t Florida Blue get sunburned at the beach?',
+            punchline: "Because it's always fully covered.",
+          },
+          {
+            setup:
+              'Why did Florida Blue become the largest single‑state provider of individual marketplace plans?',
+            punchline: 'Because they heard “go big or go home” and chose both.',
+          },
+          {
+            setup: 'What’s Florida Blue’s favorite type of coverage?',
+            punchline: 'Smile coverage. It’s 100% guaranteed on this page.',
+          },
+        ];
+
+        // Render jokes into the page
+        const jokesList = document.getElementById('jokes-list');
+        jokes.forEach((joke) => {
+          const card = document.createElement('div');
+          card.className = 'joke-container';
+          card.innerHTML =
+            '<div class="setup">' +
+            joke.setup +
+            '</div><div class="punchline">' +
+            joke.punchline +
+            '</div>';
+          card.addEventListener('click', () => {
+            card.classList.toggle('open');
+          });
+          jokesList.appendChild(card);
+        });
+
+        // Random joke generator
+        const randomBtn = document.getElementById('random-btn');
+        const randomDisplay = document.getElementById('random-display');
+        randomBtn.addEventListener('click', () => {
+          const index = Math.floor(Math.random() * jokes.length);
+          const joke = jokes[index];
+          randomDisplay.innerHTML =
+            '<strong>' + joke.setup + '</strong><br>' + joke.punchline;
+        });
+
+        // Contact form handling
+        const contactForm = document.getElementById('contact-form');
+        const formMessage = document.getElementById('form-message');
+        contactForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          // Display a friendly confirmation message
+          formMessage.textContent =
+            'Thanks for reaching out! We will respond faster than Florida weather changes.';
+          // Clear form fields
+          contactForm.reset();
+        });
+      });
+    </script>
+  </body>
+</html>
