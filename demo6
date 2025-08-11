@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Got an AI Use Case Idea?</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient 4s ease infinite;
+            margin-bottom: 0.5rem;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 300;
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .question-group {
+            margin-bottom: 2.5rem;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideUp 0.6s ease forwards;
+        }
+
+        .question-group:nth-child(1) { animation-delay: 0.1s; }
+        .question-group:nth-child(2) { animation-delay: 0.2s; }
+        .question-group:nth-child(3) { animation-delay: 0.3s; }
+        .question-group:nth-child(4) { animation-delay: 0.4s; }
+        .question-group:nth-child(5) { animation-delay: 0.5s; }
+
+        @keyframes slideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .question-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .question-title::before {
+            content: '';
+            position: absolute;
+            left: -20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            border-radius: 2px;
+        }
+
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .checkbox-item {
+            position: relative;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            display: none;
+        }
+
+        .checkbox-item label {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+            font-weight: 500;
+        }
+
+        .checkbox-item input[type="checkbox"]:checked + label {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-color: #667eea;
+            color: white;
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .checkbox-item label::before {
+            content: '';
+            width: 20px;
+            height: 20px;
+            border: 2px solid #cbd5e0;
+            border-radius: 4px;
+            margin-right: 0.75rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .checkbox-item input[type="checkbox"]:checked + label::before {
+            background: white;
+            border-color: white;
+            background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='%23667eea' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='m13.854 3.646-7.5 7.5a.5.5 0 0 1-.708 0l-3-3a.5.5 0 1 1 .708-.708L6 9.793l7.146-7.147a.5.5 0 0 1 .708.708z'/%3e%3c/svg%3e");
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .radio-item {
+            position: relative;
+        }
+
+        .radio-item input[type="radio"] {
+            display: none;
+        }
+
+        .radio-item label {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+            font-weight: 500;
+        }
+
+        .radio-item input[type="radio"]:checked + label {
+            background: linear-gradient(135deg, #4ecdc4, #45b7d1);
+            border-color: #4ecdc4;
+            color: white;
+            box-shadow: 0 5px 15px rgba(78, 205, 196, 0.3);
+        }
+
+        .radio-item label::before {
+            content: '';
+            width: 20px;
+            height: 20px;
+            border: 2px solid #cbd5e0;
+            border-radius: 50%;
+            margin-right: 0.75rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .radio-item input[type="radio"]:checked + label::before {
+            border-color: white;
+            background: white;
+            box-shadow: inset 0 0 0 4px #4ecdc4;
+        }
+
+        .text-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+            resize: vertical;
+            min-height: 120px;
+            font-family: inherit;
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px rgba(255, 107, 107, 0.3);
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(255, 107, 107, 0.4);
+        }
+
+        .generate-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .generate-btn:hover::before {
+            left: 100%;
+        }
+
+        .floating-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .shape {
+            position: absolute;
+            opacity: 0.1;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .shape:nth-child(1) {
+            top: 20%;
+            left: 10%;
+            width: 80px;
+            height: 80px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            animation-delay: 0s;
+        }
+
+        .shape:nth-child(2) {
+            top: 60%;
+            right: 15%;
+            width: 60px;
+            height: 60px;
+            background: #4ecdc4;
+            border-radius: 30%;
+            animation-delay: 5s;
+        }
+
+        .shape:nth-child(3) {
+            bottom: 30%;
+            left: 20%;
+            width: 100px;
+            height: 40px;
+            background: #45b7d1;
+            border-radius: 50px;
+            animation-delay: 10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-30px) rotate(120deg); }
+            66% { transform: translateY(20px) rotate(240deg); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .checkbox-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>Got an AI Use Case Idea?</h1>
+            <div class="subtitle">Be Prepared to Talk About It</div>
+        </div>
+
+        <div class="form-container">
+            <form id="aiForm">
+                <div class="question-group">
+                    <div class="question-title">Is your goal to... (select all that apply)</div>
+                    <div class="checkbox-grid">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="automate" name="goals" value="Automate">
+                            <label for="automate">Automate</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="predict" name="goals" value="Predict">
+                            <label for="predict">Predict</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="classify" name="goals" value="Classify">
+                            <label for="classify">Classify</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="forecast" name="goals" value="Forecast">
+                            <label for="forecast">Forecast</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="cluster" name="goals" value="Cluster">
+                            <label for="cluster">Cluster</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="summarize" name="goals" value="Summarize">
+                            <label for="summarize">Summarize</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="categorize" name="goals" value="Categorize">
+                            <label for="categorize">Categorize</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="extract" name="goals" value="Extract Information">
+                            <label for="extract">Extract Information</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question-group">
+                    <div class="question-title">Is your data... (select all that apply)</div>
+                    <div class="checkbox-grid">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="unstructured" name="dataType" value="Unstructured">
+                            <label for="unstructured">Unstructured</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="semiStructured" name="dataType" value="Semi Structured">
+                            <label for="semiStructured">Semi Structured</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="structured" name="dataType" value="Structured">
+                            <label for="structured">Structured</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="rawText" name="dataType" value="Raw Text">
+                            <label for="rawText">Raw Text</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="semiFormatted" name="dataType" value="Semi Formatted Text or Numbers">
+                            <label for="semiFormatted">Semi Formatted Text or Numbers</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="measurable" name="dataType" value="Measurable Information in Tables">
+                            <label for="measurable">Measurable Information in Tables</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question-group">
+                    <div class="question-title">Do you know where you can access the data? If so, where?</div>
+                    <textarea class="text-input" id="dataAccess" name="dataAccess" placeholder="Describe where your data is located and how you can access it..."></textarea>
+                </div>
+
+                <div class="question-group">
+                    <div class="question-title">Who will consume the AI Output? (Pick the most appropriate answer)</div>
+                    <div class="radio-group">
+                        <div class="radio-item">
+                            <input type="radio" id="people" name="consumer" value="People">
+                            <label for="people">People</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="process" name="consumer" value="Process">
+                            <label for="process">Process</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question-group">
+                    <div class="question-title">What business action will occur as a result of the AI Output?</div>
+                    <textarea class="text-input" id="businessAction" name="businessAction" placeholder="Describe the specific business actions, decisions, or processes that will be triggered by the AI output..."></textarea>
+                </div>
+
+                <button type="submit" class="generate-btn">Generate AI Use Case Report</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Configuration object for AI technique recommendations
+        const AI_RECOMMENDATIONS = {
+            "automation": {
+                goals: ["Automate"],
+                techniques: ["Automation"]
+            },
+            "machine_learning": {
+                goals: ["Predict", "Classify", "Forecast", "Cluster"],
+                dataTypes: ["Semi Formatted Text or Numbers", "Semi Structured", "Measurable Information in Tables", "Structured"],
+                techniques: ["Machine Learning"]
+            },
+            "generative_ai": {
+                goals: ["Summarize", "Categorize", "Extract Information"],
+                dataTypes: ["Raw Text", "Unstructured", "Semi Formatted Text or Numbers", "Semi Structured"],
+                techniques: ["Generative AI"]
+            },
+            "data_analytics": {
+                goals: ["Summarize"],
+                dataTypes: ["Structured", "Measurable Information in Tables"],
+                techniques: ["Data Analytics"]
+            },
+            "poorly_framed_goals": {
+                goals: {
+                    group1: ["Categorize", "Extract Information"],
+                    group2: ["Predict", "Classify", "Forecast", "Cluster"]
+                },
+                techniques: ["You've selected goals that seem to have multiple AI solutions needed. This is indicative of having a poorly framed goal in mind. Consider revisiting these selections."]
+            },
+            "ai_not_needed": {
+                conditions: "automation_only",
+                techniques: ["AI might not be needed"]
+            }
+        };
+
+        function determineAITechniques(formData) {
+            const techniques = new Set();
+            
+            // Check for poorly framed goals first
+            const group1Goals = ["Categorize", "Extract Information"];
+            const group2Goals = ["Predict", "Classify", "Forecast", "Cluster"];
+            
+            const hasGroup1 = formData.goals.some(goal => group1Goals.includes(goal));
+            const hasGroup2 = formData.goals.some(goal => group2Goals.includes(goal));
+            
+            if (hasGroup1 && hasGroup2) {
+                techniques.add("You've selected goals that seem to have multiple AI solutions needed. This is indicative of having a poorly framed goal in mind. Consider revisiting these selections.");
+            }
+            
+            // Check for automation
+            if (formData.goals.includes("Automate")) {
+                techniques.add("Automation");
+            }
+            
+            // Check for machine learning
+            const mlGoals = ["Predict", "Classify", "Forecast", "Cluster"];
+            const mlDataTypes = ["Semi Formatted Text or Numbers", "Semi Structured", "Measurable Information in Tables", "Structured"];
+            
+            if (formData.goals.some(goal => mlGoals.includes(goal)) && 
+                formData.dataType.some(type => mlDataTypes.includes(type))) {
+                techniques.add("Machine Learning");
+            }
+            
+            // Check for generative AI
+            const genAIGoals = ["Summarize", "Categorize", "Extract Information"];
+            const genAIDataTypes = ["Raw Text", "Unstructured", "Semi Formatted Text or Numbers", "Semi Structured"];
+            
+            if (formData.goals.some(goal => genAIGoals.includes(goal)) && 
+                formData.dataType.some(type => genAIDataTypes.includes(type))) {
+                techniques.add("Generative AI");
+            }
+            
+            // Check for data analytics
+            if (formData.goals.includes("Summarize") && 
+                formData.dataType.some(type => ["Structured", "Measurable Information in Tables"].includes(type))) {
+                techniques.add("Data Analytics");
+            }
+            
+            // Check if automation is the only recommendation
+            const techniqueArray = Array.from(techniques);
+            if (techniqueArray.length === 1 && techniqueArray[0] === "Automation") {
+                return ["AI might not be needed"];
+            }
+            
+            return techniqueArray;
+        }
+
+        function generatePDF(formData) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Set up colors
+            const primaryColor = [102, 126, 234];
+            const secondaryColor = [78, 205, 196];
+            const accentColor = [255, 107, 107];
+            const textColor = [45, 55, 72];
+            const lightGray = [248, 250, 252];
+            
+            // Add background gradient effect
+            doc.setFillColor(...lightGray);
+            doc.rect(0, 0, 210, 297, 'F');
+            
+            // Header with gradient-like effect
+            doc.setFillColor(...primaryColor);
+            doc.rect(0, 0, 210, 40, 'F');
+            
+            // Title
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(24);
+            doc.setFont('helvetica', 'bold');
+            doc.text('AI Use Case Analysis Report', 105, 25, { align: 'center' });
+            
+            let yPosition = 60;
+            
+            // Helper function to add section
+            function addSection(title, content, color = primaryColor) {
+                doc.setFillColor(...color);
+                doc.rect(20, yPosition - 5, 170, 8, 'F');
+                
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(14);
+                doc.setFont('helvetica', 'bold');
+                doc.text(title, 25, yPosition);
+                
+                yPosition += 15;
+                
+                doc.setTextColor(...textColor);
+                doc.setFontSize(11);
+                doc.setFont('helvetica', 'normal');
+                
+                if (Array.isArray(content)) {
+                    content.forEach(item => {
+                        const lines = doc.splitTextToSize(`• ${item}`, 160);
+                        lines.forEach(line => {
+                            doc.text(line, 25, yPosition);
+                            yPosition += 6;
+                        });
+                    });
+                } else {
+                    const lines = doc.splitTextToSize(content, 160);
+                    lines.forEach(line => {
+                        doc.text(line, 25, yPosition);
+                        yPosition += 6;
+                    });
+                }
+                
+                yPosition += 5;
+            }
+            
+            // Goals section
+            addSection('Your Goals', formData.goals, primaryColor);
+            
+            // Data Types section
+            addSection('Your Data Types', formData.dataType, secondaryColor);
+            
+            // Data Access section
+            if (formData.dataAccess.trim()) {
+                addSection('Data Access', formData.dataAccess, accentColor);
+            }
+            
+            // Output Consumer section
+            addSection('Output Consumer', formData.consumer, [69, 90, 120]);
+            
+            // Business Action section
+            if (formData.businessAction.trim()) {
+                addSection('Business Action', formData.businessAction, [138, 43, 226]);
+            }
+            
+            // AI Technique Recommendations
+            const techniques = determineAITechniques(formData);
+            if (techniques.length > 0) {
+                addSection('Recommended AI Techniques', techniques, [34, 197, 94]);
+            } else {
+                addSection('Recommended AI Techniques', ['Based on your responses, we recommend consulting with an AI specialist to determine the best approach for your specific use case.'], [239, 68, 68]);
+            }
+            
+            // Footer
+            doc.setFontSize(8);
+            doc.setTextColor(128, 128, 128);
+            doc.text('Generated by WiseWays AI Use Case Analyzer', 105, 280, { align: 'center' });
+            doc.text(new Date().toLocaleDateString(), 105, 285, { align: 'center' });
+            
+            // Save the PDF
+            doc.save('AI-Use-Case-Analysis.pdf');
+        }
+
+        document.getElementById('aiForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                goals: Array.from(document.querySelectorAll('input[name="goals"]:checked')).map(cb => cb.value),
+                dataType: Array.from(document.querySelectorAll('input[name="dataType"]:checked')).map(cb => cb.value),
+                dataAccess: document.getElementById('dataAccess').value,
+                consumer: document.querySelector('input[name="consumer"]:checked')?.value || '',
+                businessAction: document.getElementById('businessAction').value
+            };
+            
+            // Log the configuration for manual editing
+            console.log('AI Recommendations Configuration:', JSON.stringify(AI_RECOMMENDATIONS, null, 2));
+            console.log('Form Data:', JSON.stringify(formData, null, 2));
+            
+            generatePDF(formData);
+        });
+    </script>
+</body>
+</html>
